@@ -1,0 +1,271 @@
+﻿"use client";
+
+import { useEffect, useState } from "react";
+import { api, ApiError } from "@/lib/api";
+import { TestimonialDto, UpsertTestimonialDto } from "@/lib/types";
+import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input, Textarea, Field } from "@/components/ui/Input";
+import { Toggle } from "@/components/ui/Toggle";
+import { Badge } from "@/components/ui/Badge";
+import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
+import { SkeletonTable } from "@/components/ui/Skeleton";
+import { ImageUrlField } from "@/components/media/MediaPicker";
+import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
+import { useToast } from "@/lib/toast-context";
+import { Pencil, Trash2, X, Check } from "lucide-react";
+
+const empty: UpsertTestimonialDto = {
+  name: "",
+  designation: "",
+  message: "",
+  photoUrl: "",
+  rating: 5,
+  isActive: true,
+  displayOrder: 0,
+};
+
+type Filter = "all" | "pending" | "approved" | "rejected";
+
+export default function TestimonialsPage() {
+  const toast = useToast();
+  const [items, setItems] = useState<TestimonialDto[] | null>(null);
+  const [form, setForm] = useState<UpsertTestimonialDto>(empty);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [activeFilter, setActiveFilter] = useState<ActiveFilterValue>("active");
+
+  async function load() {
+    try {
+      setItems(await api.get<TestimonialDto[]>("/api/testimonials/all"));
+    } catch (err) {
+      toast.error("Failed to load testimonials", err instanceof ApiError ? err.message : undefined);
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  function startEdit(t: TestimonialDto) {
+    setEditingId(t.id);
+    setForm({
+      name: t.name,
+      designation: t.designation,
+      message: t.message,
+      photoUrl: t.photoUrl ?? "",
+      rating: t.rating,
+      isActive: t.isActive,
+      displayOrder: t.displayOrder,
+    });
+  }
+
+  function resetForm() {
+    setEditingId(null);
+    setForm(empty);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      if (editingId) await api.put(`/api/testimonials/${editingId}`, form);
+      else await api.post("/api/testimonials", form);
+      toast.success(editingId ? "Testimonial updated" : "Testimonial added");
+      resetForm();
+      load();
+    } catch (err) {
+      toast.error("Failed to save", err instanceof ApiError ? err.message : undefined);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (!window.confirm("Deactivate this testimonial? It will be hidden from the homepage but can be reactivated later.")) return;
+    try {
+      await api.delete(`/api/testimonials/${id}`);
+      toast.success("Testimonial deactivated");
+      load();
+    } catch (err) {
+      toast.error("Failed to deactivate", err instanceof ApiError ? err.message : undefined);
+    }
+  }
+
+  async function setApproval(id: string, approvalStatus: "Approved" | "Rejected") {
+    try {
+      await api.patch(`/api/testimonials/${id}/approval`, { approvalStatus });
+      toast.success(approvalStatus === "Approved" ? "Testimonial approved" : "Testimonial rejected");
+      load();
+    } catch (err) {
+      toast.error("Failed to update approval", err instanceof ApiError ? err.message : undefined);
+    }
+  }
+
+  const pendingCount = items?.filter((t) => t.approvalStatus === "Pending").length ?? 0;
+  const filtered = items && filterByActive(items, activeFilter).filter((t) => {
+    if (filter === "all") return true;
+    if (filter === "pending") return t.approvalStatus === "Pending";
+    if (filter === "approved") return t.approvalStatus === "Approved";
+    return t.approvalStatus === "Rejected";
+  });
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-[28px] font-bold text-text">Testimonials</h1>
+        <p className="mt-1 text-sm text-text-muted">
+          Client quotes shown on the homepage{pendingCount > 0 && ` — ${pendingCount} awaiting approval`}.
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader
+          title={editingId ? "Edit testimonial" : "Add testimonial"}
+          action={
+            editingId && (
+              <Button variant="ghost" size="sm" onClick={resetForm}>
+                <X size={14} strokeWidth={1.75} />
+                Cancel
+              </Button>
+            )
+          }
+        />
+        <CardBody>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <Field label="Name">
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+              </Field>
+              <Field label="Designation">
+                <Input
+                  value={form.designation}
+                  onChange={(e) => setForm({ ...form, designation: e.target.value })}
+                  required
+                />
+              </Field>
+              <Field label="Rating (1-5)">
+                <Input
+                  type="number"
+                  min={1}
+                  max={5}
+                  value={form.rating}
+                  onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Photo">
+                <ImageUrlField
+                  value={form.photoUrl ?? ""}
+                  onChange={(url) => setForm({ ...form, photoUrl: url })}
+                />
+              </Field>
+            </div>
+            <Field label="Message">
+              <Textarea rows={3} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required />
+            </Field>
+            <div className="flex items-center gap-6">
+              <Toggle checked={form.isActive} onChange={(v) => setForm({ ...form, isActive: v })} label="Active" />
+              <Field label="Display order">
+                <Input
+                  type="number"
+                  className="w-24"
+                  value={form.displayOrder}
+                  onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })}
+                />
+              </Field>
+            </div>
+            <div>
+              <Button type="submit">{editingId ? "Save changes" : "Add testimonial"}</Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader
+          title="All testimonials"
+          description={items ? `${filtered?.length ?? 0} of ${items.length}` : undefined}
+          action={
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                {(["all", "pending", "approved", "rejected"] as Filter[]).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
+                      filter === f ? "bg-primary text-white" : "text-text-muted hover:bg-surface-hover"
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+              <ActiveFilter value={activeFilter} onChange={setActiveFilter} />
+            </div>
+          }
+        />
+        {items === null && <SkeletonTable rows={4} cols={4} />}
+        {items && filtered && filtered.length === 0 && <EmptyState label="No testimonials in this view." />}
+        {items && filtered && filtered.length > 0 && (
+          <Table>
+            <TableHead columns={["Name", "Details", "Rating", "Status", "Approval", ""]} />
+            <tbody>
+              {filtered.map((t) => (
+                <TableRow key={t.id}>
+                  <TableCell>
+                    <span className="font-semibold text-text">{t.name}</span>
+                    {t.email && <p className="text-xs text-text-muted">{t.email}</p>}
+                  </TableCell>
+                  <TableCell muted>
+                    <p>{t.designation}</p>
+                    {t.servicesBooked && t.servicesBooked.length > 0 && (
+                      <p className="mt-0.5 max-w-[220px] truncate text-xs" title={t.servicesBooked.join(", ")}>
+                        {t.servicesBooked.join(", ")}
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell muted>{t.rating} / 5</TableCell>
+                  <TableCell>
+                    <Badge tone={t.isActive ? "success" : "neutral"}>
+                      {t.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      tone={
+                        t.approvalStatus === "Approved"
+                          ? "success"
+                          : t.approvalStatus === "Rejected"
+                          ? "danger"
+                          : "warning"
+                      }
+                    >
+                      {t.approvalStatus}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {t.approvalStatus !== "Approved" && (
+                        <Button variant="secondary" size="sm" onClick={() => setApproval(t.id, "Approved")} title="Approve">
+                          <Check size={14} strokeWidth={1.75} />
+                        </Button>
+                      )}
+                      {t.approvalStatus !== "Rejected" && (
+                        <Button variant="danger" size="sm" onClick={() => setApproval(t.id, "Rejected")} title="Reject">
+                          <X size={14} strokeWidth={1.75} />
+                        </Button>
+                      )}
+                      <Button variant="secondary" size="sm" onClick={() => startEdit(t)}>
+                        <Pencil size={14} strokeWidth={1.75} />
+                      </Button>
+                      <Button variant="danger" size="sm" onClick={() => handleDelete(t.id)}>
+                        <Trash2 size={14} strokeWidth={1.75} />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </Card>
+    </div>
+  );
+}
