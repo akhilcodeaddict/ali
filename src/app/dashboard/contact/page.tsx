@@ -9,12 +9,15 @@ import { Input, Field } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
+import { useToast } from "@/lib/toast-context";
 import { Trash2 } from "lucide-react";
 
 export default function ContactPage() {
+  const toast = useToast();
   const [info, setInfo] = useState<ContactInfoDto | null>(null);
   const [messages, setMessages] = useState<ContactMessageDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   async function load() {
     try {
@@ -36,13 +39,21 @@ export default function ContactPage() {
   async function handleInfoSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!info) return;
-    await api.put("/api/contact/info", {
-      address: info.address,
-      phone: info.phone,
-      email: info.email,
-      mapEmbedUrl: info.mapEmbedUrl || null,
-    });
-    load();
+    setSaving(true);
+    try {
+      await api.put("/api/contact/info", {
+        address: info.address,
+        phone: info.phone,
+        email: info.email,
+        mapEmbedUrl: info.mapEmbedUrl || null,
+      });
+      toast.success("Contact details saved");
+      load();
+    } catch (err) {
+      toast.error("Failed to save contact details", err instanceof ApiError ? err.message : undefined);
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function markRead(id: string) {
@@ -92,7 +103,7 @@ export default function ContactPage() {
                 </Field>
               </div>
               <div>
-                <Button type="submit">Save details</Button>
+                <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save details"}</Button>
               </div>
             </form>
           ) : (

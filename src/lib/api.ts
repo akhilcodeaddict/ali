@@ -101,6 +101,10 @@ async function request<T>(
     throw new ApiError(res.status, message);
   }
 
+  if (rest.method && rest.method !== "GET") {
+    fetch("/api/revalidate-proxy", { method: "POST" }).catch(() => {});
+  }
+
   return data as T;
 }
 
