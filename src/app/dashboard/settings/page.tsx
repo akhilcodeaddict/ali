@@ -25,6 +25,7 @@ const emptyForm: Form = {
   instagramUrl: null,
   linkedInUrl: null,
   youtubeUrl: null,
+  googleMapsUrl: null,
   websiteUrl: null,
   metaTitle: null,
   metaDescription: null,
@@ -187,6 +188,9 @@ export default function SettingsPage() {
               </Field>
               <Field label="YouTube">
                 <Input type="url" value={str(form.youtubeUrl)} onChange={(e) => set("youtubeUrl", e.target.value)} placeholder="https://youtube.com/…" />
+              </Field>
+              <Field label="Google Maps (shop link)">
+                <Input type="url" value={str(form.googleMapsUrl)} onChange={(e) => set("googleMapsUrl", e.target.value)} placeholder="https://maps.app.goo.gl/…" />
               </Field>
             </div>
           </CardBody>

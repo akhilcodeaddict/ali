@@ -41,6 +41,7 @@ import {
   Mail,
   ClipboardList,
   GalleryHorizontal,
+  Search,
 } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -85,6 +86,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         ...(view("careers") ? [{ href: "/dashboard/careers", label: "Careers", icon: Briefcase }] : []),
         ...(view("faqs") ? [{ href: "/dashboard/faqs", label: "FAQs", icon: HelpCircle }] : []),
         ...(view("gallery") ? [{ href: "/dashboard/gallery", label: "Gallery", icon: GalleryHorizontal }] : []),
+        ...(can("seo.view") ? [{ href: "/dashboard/seo", label: "SEO", icon: Search }] : []),
       ],
     },
     {

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { MediaFile } from "@/lib/media-types";
-import { MediaGrid, mediaUrl } from "@/components/media/MediaGrid";
+import { MediaGrid } from "@/components/media/MediaGrid";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Upload, X } from "lucide-react";
@@ -15,7 +15,10 @@ export function MediaPicker({
 }: {
   open: boolean;
   onClose: () => void;
-  /** Receives the picked file's URL (medium rendition if available) and the file itself */
+  /** Receives the picked file's backend-relative path (medium rendition if available)
+   *  and the file itself. Kept relative — not resolved against this admin session's
+   *  API host — so the value stays portable no matter where it's later rendered
+   *  (the salon site resolves it against its own API host at render time). */
   onPick: (url: string, file: MediaFile) => void;
 }) {
   const [files, setFiles] = useState<MediaFile[] | null>(null);
@@ -39,7 +42,7 @@ export function MediaPicker({
       form.append("file", fileList[0]);
       form.append("category", "General");
       const uploaded = await api.post<MediaFile>("/api/media/upload", form);
-      onPick(mediaUrl(uploaded.mediumUrl ?? uploaded.originalUrl), uploaded);
+      onPick(uploaded.mediumUrl ?? uploaded.originalUrl, uploaded);
       onClose();
     } finally {
       setUploading(false);
@@ -94,7 +97,7 @@ export function MediaPicker({
             <MediaGrid
               files={files}
               onSelect={(file) => {
-                onPick(mediaUrl(file.mediumUrl ?? file.originalUrl), file);
+                onPick(file.mediumUrl ?? file.originalUrl, file);
                 onClose();
               }}
             />

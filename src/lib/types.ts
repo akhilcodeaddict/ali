@@ -434,6 +434,7 @@ export interface SiteSettingsDto {
   instagramUrl?: string | null;
   linkedInUrl?: string | null;
   youtubeUrl?: string | null;
+  googleMapsUrl?: string | null;
   websiteUrl?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -451,6 +452,24 @@ export interface SiteSettingsDto {
   smtpFromName?: string | null;
   smtpAdminEmail?: string | null;
   smtpUseSsl: boolean;
+}
+
+export interface SeoMetaDto {
+  id: string;
+  pageKey: string;
+  label: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  metaKeywords?: string | null;
+  ogImageUrl?: string | null;
+}
+
+export interface UpsertSeoMetaDto {
+  label: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  metaKeywords?: string | null;
+  ogImageUrl?: string | null;
 }
 
 export type GalleryMediaType = "Image" | "Video";
