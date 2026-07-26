@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
-import { TestimonialDto, UpsertTestimonialDto } from "@/lib/types";
+import { TestimonialDto, UpsertTestimonialDto, ProductDto } from "@/lib/types";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Field } from "@/components/ui/Input";
@@ -13,7 +13,7 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
-import { Pencil, Trash2, X, Check } from "lucide-react";
+import { Pencil, Trash2, X, Check, Mail, UploadCloud } from "lucide-react";
 
 const empty: UpsertTestimonialDto = {
   name: "",
@@ -23,17 +23,91 @@ const empty: UpsertTestimonialDto = {
   rating: 5,
   isActive: true,
   displayOrder: 0,
+  email: null,
+  approvalStatus: "Approved",
+  servicesBooked: null,
+  extraImages: null,
+  extraVideos: null,
 };
+
+/** Uploads any number of images through one file picker, appending each to the current list. */
+function ExtraImagesField({ value, onChange }: { value: string[]; onChange: (urls: string[]) => void }) {
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    setUploading(true);
+    try {
+      const uploaded = await Promise.all(
+        Array.from(fileList).map(async (file) => {
+          const form = new FormData();
+          form.append("file", file);
+          form.append("category", "Testimonials");
+          const media = await api.post<{ mediumUrl?: string | null; originalUrl: string }>("/api/media/upload", form);
+          return media.mediumUrl ?? media.originalUrl;
+        })
+      );
+      onChange([...value, ...uploaded]);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function remove(url: string) {
+    onChange(value.filter((u) => u !== url));
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {value.map((url) => (
+            <div key={url} className="group relative h-16 w-16 overflow-hidden rounded-md border border-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={url} alt="" className="h-full w-full object-cover" />
+              <button
+                type="button"
+                onClick={() => remove(url)}
+                className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-1.5 text-[13px] font-medium text-text transition-colors hover:bg-section">
+        <UploadCloud size={14} strokeWidth={1.75} />
+        {uploading ? "Uploading..." : "Upload images"}
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          disabled={uploading}
+          onChange={(e) => {
+            handleFiles(e.target.files);
+            e.target.value = "";
+          }}
+        />
+      </label>
+    </div>
+  );
+}
 
 type Filter = "all" | "pending" | "approved" | "rejected";
 
 export default function TestimonialsPage() {
   const toast = useToast();
   const [items, setItems] = useState<TestimonialDto[] | null>(null);
+  const [services, setServices] = useState<ProductDto[]>([]);
   const [form, setForm] = useState<UpsertTestimonialDto>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [activeFilter, setActiveFilter] = useState<ActiveFilterValue>("active");
+  const [requestName, setRequestName] = useState("");
+  const [requestEmail, setRequestEmail] = useState("");
+  const [sendingRequest, setSendingRequest] = useState(false);
 
   async function load() {
     try {
@@ -45,7 +119,16 @@ export default function TestimonialsPage() {
 
   useEffect(() => {
     load();
+    api.get<ProductDto[]>("/api/products/all").then(setServices).catch(() => setServices([]));
   }, []);
+
+  function toggleService(name: string) {
+    setForm((f) => {
+      const current = f.servicesBooked ?? [];
+      const next = current.includes(name) ? current.filter((s) => s !== name) : [...current, name];
+      return { ...f, servicesBooked: next.length > 0 ? next : null };
+    });
+  }
 
   function startEdit(t: TestimonialDto) {
     setEditingId(t.id);
@@ -57,6 +140,11 @@ export default function TestimonialsPage() {
       rating: t.rating,
       isActive: t.isActive,
       displayOrder: t.displayOrder,
+      email: t.email ?? null,
+      approvalStatus: t.approvalStatus,
+      servicesBooked: t.servicesBooked ?? null,
+      extraImages: t.extraImages ?? null,
+      extraVideos: t.extraVideos ?? null,
     });
   }
 
@@ -99,6 +187,21 @@ export default function TestimonialsPage() {
     }
   }
 
+  async function handleSendRequest(e: React.FormEvent) {
+    e.preventDefault();
+    setSendingRequest(true);
+    try {
+      await api.post("/api/testimonials/send-request", { name: requestName, email: requestEmail });
+      toast.success("Testimonial request sent");
+      setRequestName("");
+      setRequestEmail("");
+    } catch (err) {
+      toast.error("Failed to send request", err instanceof ApiError ? err.message : undefined);
+    } finally {
+      setSendingRequest(false);
+    }
+  }
+
   const pendingCount = items?.filter((t) => t.approvalStatus === "Pending").length ?? 0;
   const filtered = items && filterByActive(items, activeFilter).filter((t) => {
     if (filter === "all") return true;
@@ -115,6 +218,31 @@ export default function TestimonialsPage() {
           Client quotes shown on the homepage{pendingCount > 0 && ` — ${pendingCount} awaiting approval`}.
         </p>
       </div>
+
+      <Card>
+        <CardHeader
+          title="Request a testimonial"
+          description="For customers with no booking on file — emails them the review link directly."
+        />
+        <CardBody>
+          <form onSubmit={handleSendRequest} className="flex flex-col gap-5 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <Field label="Name">
+                <Input value={requestName} onChange={(e) => setRequestName(e.target.value)} required />
+              </Field>
+            </div>
+            <div className="flex-1">
+              <Field label="Email">
+                <Input type="email" value={requestEmail} onChange={(e) => setRequestEmail(e.target.value)} required />
+              </Field>
+            </div>
+            <Button type="submit" disabled={sendingRequest}>
+              <Mail size={14} strokeWidth={1.75} />
+              {sendingRequest ? "Sending..." : "Send request"}
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
 
       <Card>
         <CardHeader
@@ -159,6 +287,41 @@ export default function TestimonialsPage() {
             </div>
             <Field label="Message">
               <Textarea rows={3} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required />
+            </Field>
+            <Field
+              label="Services booked"
+              helper="Defaults to what the customer selected on the review-request link (if any) — add or remove as needed."
+            >
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {services.map((s) => {
+                  const checked = (form.servicesBooked ?? []).includes(s.name);
+                  return (
+                    <label
+                      key={s.id}
+                      className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-[13px] transition-colors ${
+                        checked ? "border-primary bg-primary-light/40 text-text" : "border-border text-text-muted hover:border-primary/40"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleService(s.name)}
+                        className="h-4 w-4 shrink-0 accent-primary"
+                      />
+                      <span className="truncate">{s.name}</span>
+                    </label>
+                  );
+                })}
+                {services.length === 0 && (
+                  <p className="text-xs text-text-helper">No services found.</p>
+                )}
+              </div>
+            </Field>
+            <Field label="Extra photos" helper="Upload any number of additional photos for this review.">
+              <ExtraImagesField
+                value={form.extraImages ?? []}
+                onChange={(urls) => setForm({ ...form, extraImages: urls.length > 0 ? urls : null })}
+              />
             </Field>
             <div className="flex items-center gap-6">
               <Toggle checked={form.isActive} onChange={(v) => setForm({ ...form, isActive: v })} label="Active" />

@@ -33,6 +33,7 @@ const emptyForm: Form = {
   copyrightText: null,
   defaultLanguage: "en",
   timeZone: null,
+  requireTestimonialApproval: true,
   smtpHost: null,
   smtpPort: 587,
   smtpUsername: null,
@@ -129,12 +130,22 @@ export default function SettingsPage() {
                 <Input value={str(form.timeZone)} onChange={(e) => set("timeZone", e.target.value)} placeholder="Asia/Kolkata" />
               </Field>
             </div>
-            <div className="mt-4">
+            <div className="mt-4 flex flex-col gap-3">
               <Toggle
                 checked={form.maintenanceMode}
                 onChange={(v) => set("maintenanceMode", v)}
                 label="Maintenance mode"
               />
+              <Toggle
+                checked={form.requireTestimonialApproval}
+                onChange={(v) => set("requireTestimonialApproval", v)}
+                label="Require approval before testimonials go live"
+              />
+              <p className="text-xs text-text-helper">
+                {form.requireTestimonialApproval
+                  ? "New testimonials land as Pending in the Testimonials page and won't appear on the site until approved."
+                  : "New testimonials appear on the site immediately, with no admin review step."}
+              </p>
             </div>
           </CardBody>
         </Card>

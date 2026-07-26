@@ -42,6 +42,7 @@ import {
   Mail,
   MessageSquareQuote,
   Images,
+  Star,
 } from "lucide-react";
 
 /* ---------------------------------- data ---------------------------------- */
@@ -357,6 +358,10 @@ export default function DashboardHomePage() {
   const traffic = stats.traffic;
   const unreadMessages = (stats.contactMessages ?? []).filter((m) => !m.isRead).length;
   const pendingTestimonials = (stats.testimonials ?? []).filter((t) => t.approvalStatus === "Pending").length;
+  const approvedTestimonials = (stats.testimonials ?? []).filter((t) => t.approvalStatus === "Approved");
+  const averageRating = approvedTestimonials.length > 0
+    ? approvedTestimonials.reduce((sum, t) => sum + t.rating, 0) / approvedTestimonials.length
+    : null;
   const publishedNews = (stats.news ?? []).filter((n) => n.isPublished).length;
   const activeProducts = (stats.products ?? []).filter((p) => p.isActive).length;
   const activeGalleryItems = (stats.gallery ?? []).filter((g) => g.isActive).length;
@@ -391,7 +396,7 @@ export default function DashboardHomePage() {
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 2xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 2xl:grid-cols-7">
         <StatCard
           label="Draft Content"
           value={stats.pages ? String(draftPages.length + draftBlogs.length) : "—"}
@@ -452,6 +457,14 @@ export default function DashboardHomePage() {
           hintTone={pendingTestimonials > 0 ? "up" : "neutral"}
           icon={MessageSquareQuote}
           iconClass="bg-fuchsia-50 text-fuchsia-600"
+          href="/dashboard/testimonials"
+        />
+        <StatCard
+          label="Avg. Rating"
+          value={averageRating !== null ? averageRating.toFixed(1) : "—"}
+          hint={averageRating !== null ? `From ${approvedTestimonials.length} approved review${approvedTestimonials.length === 1 ? "" : "s"}` : "No approved reviews yet"}
+          icon={Star}
+          iconClass="bg-amber-50 text-amber-600"
           href="/dashboard/testimonials"
         />
         <StatCard

@@ -112,6 +112,8 @@ export interface TestimonialDto {
   approvalStatus: TestimonialApprovalStatus;
   servicesBooked?: string[] | null;
   extraImages?: string[] | null;
+  extraVideos?: string[] | null;
+  createdAt: string;
 }
 
 export interface UpsertTestimonialDto {
@@ -126,6 +128,7 @@ export interface UpsertTestimonialDto {
   approvalStatus?: TestimonialApprovalStatus;
   servicesBooked?: string[] | null;
   extraImages?: string[] | null;
+  extraVideos?: string[] | null;
 }
 
 export type JobApplicationStatus = "Pending" | "Reviewed" | "Shortlisted" | "Rejected";
@@ -439,6 +442,7 @@ export interface SiteSettingsDto {
   copyrightText?: string | null;
   defaultLanguage: string;
   timeZone?: string | null;
+  requireTestimonialApproval: boolean;
   // SMTP
   smtpHost?: string | null;
   smtpPort: number;
