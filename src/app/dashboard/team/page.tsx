@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { TeamMemberDto, UpsertTeamMemberDto } from "@/lib/types";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
@@ -13,7 +13,8 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Drawer } from "@/components/ui/Drawer";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 const emptyForm: UpsertTeamMemberDto = {
   name: "",
@@ -39,6 +40,7 @@ export default function TeamPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState<ActiveFilterValue>("active");
+  const [formOpen, setFormOpen] = useState(false);
 
   async function load() {
     try {
@@ -68,12 +70,18 @@ export default function TeamPage() {
       isActive: member.isActive,
     });
     setBulletsRaw(member.bulletPoints.join("\n"));
+    setFormOpen(true);
   }
 
   function resetForm() {
     setEditingId(null);
     setForm(emptyForm);
     setBulletsRaw("");
+  }
+
+  function closeDrawer() {
+    setFormOpen(false);
+    resetForm();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -92,6 +100,7 @@ export default function TeamPage() {
       if (editingId) await api.put(`/api/team/members/${editingId}`, dto);
       else await api.post("/api/team/members", dto);
       toast.success(editingId ? "Member updated" : "Member added");
+      setFormOpen(false);
       resetForm();
       load();
     } catch (err) {
@@ -116,23 +125,24 @@ export default function TeamPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[28px] font-bold text-text">Team</h1>
-        <p className="mt-1 text-sm text-text-muted">Manage team members shown on the people page.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold text-text">Team</h1>
+          <p className="mt-1 text-sm text-text-muted">Manage team members shown on the people page.</p>
+        </div>
+        <Button onClick={() => { resetForm(); setFormOpen(true); }}>
+          <Plus size={16} strokeWidth={2} />
+          New member
+        </Button>
       </div>
 
-      <Card>
-        <CardHeader
-          title={editingId ? "Edit member" : "Add member"}
-          action={
-            editingId && (
-              <Button variant="ghost" size="sm" onClick={resetForm}>
-                <X size={14} strokeWidth={1.75} /> Cancel
-              </Button>
-            )
-          }
-        />
-        <CardBody>
+      <Drawer
+        open={formOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Edit member" : "Add member"}
+        description="Team members shown on the people page."
+        width="640px"
+      >
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Field label="Name">
@@ -212,8 +222,7 @@ export default function TeamPage() {
               </Button>
             </div>
           </form>
-        </CardBody>
-      </Card>
+      </Drawer>
 
       <Card>
         <CardHeader

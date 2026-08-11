@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { CategoryDto, ProductDto, ProductGender, ProductType, UpsertProductDto } from "@/lib/types";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
@@ -13,7 +13,8 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Drawer } from "@/components/ui/Drawer";
+import { Plus, Pencil, Trash2, X } from "lucide-react";
 
 const GENDERS: ProductGender[] = ["NotApplicable", "Male", "Female", "Unisex", "Kids"];
 const TYPES: ProductType[] = ["Count", "Service"];
@@ -77,6 +78,7 @@ export default function ProductsPage() {
   const [form, setForm] = useState<UpsertProductDto>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<ActiveFilterValue>("active");
+  const [formOpen, setFormOpen] = useState(false);
 
   async function load() {
     try {
@@ -110,9 +112,11 @@ export default function ProductsPage() {
       tagline: p.tagline ?? "", durationLabel: p.durationLabel ?? "",
       includedItems: p.includedItems ?? [], benefits: p.benefits ?? [], galleryImages: p.galleryImages ?? [],
     });
+    setFormOpen(true);
   }
 
   function resetForm() { setEditingId(null); setForm(emptyForm); }
+  function closeDrawer() { setFormOpen(false); resetForm(); }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -129,6 +133,7 @@ export default function ProductsPage() {
       if (editingId) await api.put(`/api/products/${editingId}`, payload);
       else await api.post("/api/products", payload);
       toast.success(editingId ? "Product updated" : "Product created");
+      setFormOpen(false);
       resetForm();
       load();
     } catch (err) {
@@ -152,21 +157,24 @@ export default function ProductsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[28px] font-bold text-heading">Products</h1>
-        <p className="mt-1 text-sm text-text-muted">Manage products and services.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold text-heading">Products</h1>
+          <p className="mt-1 text-sm text-text-muted">Manage products and services.</p>
+        </div>
+        <Button onClick={() => { resetForm(); setFormOpen(true); }}>
+          <Plus size={16} strokeWidth={2} />
+          New product
+        </Button>
       </div>
 
-      <Card>
-        <CardHeader
-          title={editingId ? "Edit product" : "Add product"}
-          action={editingId ? (
-            <Button variant="ghost" size="sm" onClick={resetForm}>
-              <X size={14} strokeWidth={1.75} /> Cancel
-            </Button>
-          ) : undefined}
-        />
-        <CardBody>
+      <Drawer
+        open={formOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Edit product" : "Add product"}
+        description="Manage products and services shown on the public site."
+        width="720px"
+      >
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             {/* Basic info */}
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -362,8 +370,7 @@ export default function ProductsPage() {
               <Button type="submit">{editingId ? "Save changes" : "Add product"}</Button>
             </div>
           </form>
-        </CardBody>
-      </Card>
+      </Drawer>
 
       <Card>
         <CardHeader

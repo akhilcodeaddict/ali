@@ -111,7 +111,7 @@ function Panel({
   return (
     <section
       className={clsx(
-        "flex flex-col rounded-lg border border-border bg-white shadow-[var(--shadow-card)]",
+        "flex flex-col rounded-lg border border-border bg-surface shadow-[var(--shadow-card)]",
         className
       )}
     >
@@ -179,7 +179,7 @@ function StatCard({
   progress?: number;
 }) {
   const body = (
-    <div className="flex h-full flex-col rounded-lg border border-border bg-white p-4 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]">
+    <div className="flex h-full flex-col rounded-lg border border-border bg-surface p-4 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]">
       <div className="flex items-start justify-between gap-2">
         <div className={clsx("flex h-9 w-9 items-center justify-center rounded-md", iconClass)}>
           <Icon size={17} strokeWidth={1.75} />
@@ -236,7 +236,7 @@ function KanbanCard({ page }: { page: PageListItem }) {
   return (
     <Link
       href={`/dashboard/pages/${page.id}`}
-      className="group block rounded-md border border-border bg-white p-3 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]"
+      className="group block rounded-md border border-border bg-surface p-3 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]"
     >
       <div className="flex items-start justify-between gap-2">
         <p className="truncate text-[13px] font-semibold text-heading">{page.title}</p>
@@ -534,7 +534,7 @@ export default function DashboardHomePage() {
                   ))}
                   <Link
                     href="/dashboard/pages"
-                    className="rounded-md px-2 py-1.5 text-center text-xs font-semibold text-text-helper transition-colors hover:bg-white hover:text-text"
+                    className="rounded-md px-2 py-1.5 text-center text-xs font-semibold text-text-helper transition-colors hover:bg-surface hover:text-text"
                   >
                     + Add
                   </Link>

@@ -10,7 +10,7 @@ export function Card({
   return (
     <div
       className={clsx(
-        "rounded-lg border border-border bg-white shadow-[var(--shadow-card)]",
+        "rounded-[10px] border border-border bg-surface shadow-[var(--shadow-card)]",
         className
       )}
     >

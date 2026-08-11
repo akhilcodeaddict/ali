@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { api, ApiError, API_URL } from "@/lib/api";
 import { DocumentDto, UpdateDocumentDto } from "@/lib/types";
 import { formatFileSize } from "@/lib/media-types";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
@@ -13,7 +13,8 @@ import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { CategorySelect } from "@/components/ui/CategorySelect";
 import { useToast } from "@/lib/toast-context";
-import { Pencil, Trash2, X, Download, UploadCloud } from "lucide-react";
+import { Drawer } from "@/components/ui/Drawer";
+import { Plus, Pencil, Trash2, Download, UploadCloud } from "lucide-react";
 
 const emptyMeta: UpdateDocumentDto = {
   title: "",
@@ -29,6 +30,7 @@ export default function DocumentsPage() {
   const [meta, setMeta] = useState<UpdateDocumentDto>(emptyMeta);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const replaceFileRef = useRef<HTMLInputElement>(null);
 
@@ -53,6 +55,7 @@ export default function DocumentsPage() {
       author: d.author,
       isPublished: d.isPublished,
     });
+    setFormOpen(true);
   }
 
   function resetForm() {
@@ -60,6 +63,11 @@ export default function DocumentsPage() {
     setMeta(emptyMeta);
     if (fileRef.current) fileRef.current.value = "";
     if (replaceFileRef.current) replaceFileRef.current.value = "";
+  }
+
+  function closeDrawer() {
+    setFormOpen(false);
+    resetForm();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -91,6 +99,7 @@ export default function DocumentsPage() {
         await api.post("/api/documents/upload", fd);
         toast.success("Document uploaded");
       }
+      setFormOpen(false);
       resetForm();
       load();
     } catch (err) {
@@ -123,24 +132,24 @@ export default function DocumentsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[28px] font-bold text-heading">Documents</h1>
-        <p className="mt-1 text-sm text-text-muted">Downloadable files: reports, guides, policies.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold text-heading">Documents</h1>
+          <p className="mt-1 text-sm text-text-muted">Downloadable files: reports, guides, policies.</p>
+        </div>
+        <Button onClick={() => { resetForm(); setFormOpen(true); }}>
+          <Plus size={16} strokeWidth={2} />
+          New document
+        </Button>
       </div>
 
-      <Card>
-        <CardHeader
-          title={editingId ? "Edit document" : "Upload document"}
-          action={
-            editingId && (
-              <Button variant="ghost" size="sm" onClick={resetForm}>
-                <X size={14} strokeWidth={1.75} />
-                Cancel
-              </Button>
-            )
-          }
-        />
-        <CardBody>
+      <Drawer
+        open={formOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Edit document" : "Upload document"}
+        description="Downloadable files: reports, guides, policies."
+        width="640px"
+      >
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Field label="Title">
@@ -181,8 +190,7 @@ export default function DocumentsPage() {
               </Button>
             </div>
           </form>
-        </CardBody>
-      </Card>
+      </Drawer>
 
       <Card>
         <CardHeader title="All documents" description={items ? `${items.length} total` : undefined} />

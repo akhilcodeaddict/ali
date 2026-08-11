@@ -23,9 +23,20 @@ export function TableHead({ columns }: { columns: string[] }) {
   );
 }
 
-export function TableRow({ children }: { children: React.ReactNode }) {
+export function TableRow({
+  children,
+  onClick,
+  className,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
+}) {
   return (
-    <tr className="border-b border-border last:border-0 hover:bg-section transition-colors">
+    <tr
+      onClick={onClick}
+      className={`border-b border-border last:border-0 hover:bg-section transition-colors ${className ?? ""}`}
+    >
       {children}
     </tr>
   );

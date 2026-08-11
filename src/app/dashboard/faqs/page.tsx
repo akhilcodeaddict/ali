@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { FaqDto } from "@/lib/types";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
@@ -12,7 +12,8 @@ import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { CategorySelect } from "@/components/ui/CategorySelect";
 import { useToast } from "@/lib/toast-context";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Drawer } from "@/components/ui/Drawer";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 const emptyForm = { question: "", answer: "", category: "", sortOrder: 0, isPublished: true };
 
@@ -23,6 +24,7 @@ export default function FaqsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState<"published" | "hidden" | "all">("published");
+  const [formOpen, setFormOpen] = useState(false);
 
   async function load() {
     try {
@@ -37,9 +39,11 @@ export default function FaqsPage() {
   function startEdit(f: FaqDto) {
     setEditingId(f.id);
     setForm({ question: f.question, answer: f.answer, category: f.category ?? "", sortOrder: f.sortOrder, isPublished: f.isPublished });
+    setFormOpen(true);
   }
 
   function resetForm() { setEditingId(null); setForm(emptyForm); }
+  function closeDrawer() { setFormOpen(false); resetForm(); }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,6 +53,7 @@ export default function FaqsPage() {
       if (editingId) await api.put(`/api/faqs/${editingId}`, payload);
       else await api.post("/api/faqs", payload);
       toast.success(editingId ? "FAQ updated" : "FAQ created");
+      setFormOpen(false);
       resetForm();
       load();
     } catch (err) {
@@ -77,21 +82,24 @@ export default function FaqsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[28px] font-bold text-heading">FAQs</h1>
-        <p className="mt-1 text-sm text-text-muted">Frequently asked questions shown on the public site.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold text-heading">FAQs</h1>
+          <p className="mt-1 text-sm text-text-muted">Frequently asked questions shown on the public site.</p>
+        </div>
+        <Button onClick={() => { resetForm(); setFormOpen(true); }}>
+          <Plus size={16} strokeWidth={2} />
+          New FAQ
+        </Button>
       </div>
 
-      <Card>
-        <CardHeader
-          title={editingId ? "Edit FAQ" : "Add FAQ"}
-          action={editingId ? (
-            <Button variant="ghost" size="sm" onClick={resetForm}>
-              <X size={14} strokeWidth={1.75} /> Cancel
-            </Button>
-          ) : undefined}
-        />
-        <CardBody>
+      <Drawer
+        open={formOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Edit FAQ" : "Add FAQ"}
+        description="Frequently asked questions shown on the public site."
+        width="560px"
+      >
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Category">
@@ -114,8 +122,7 @@ export default function FaqsPage() {
               </Button>
             </div>
           </form>
-        </CardBody>
-      </Card>
+      </Drawer>
 
       <Card>
         <CardHeader

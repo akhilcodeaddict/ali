@@ -13,7 +13,7 @@ interface Props {
 }
 
 const SELECT_CLASS =
-  "w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]";
+  "w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]";
 
 export function CategorySelect({ module, value, onChange, placeholder = "— Select category —", required }: Props) {
   const [categories, setCategories] = useState<CategoryDto[]>([]);

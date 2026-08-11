@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { api, ApiError } from "@/lib/api";
 import { JobApplicationDto, JobApplicationStatus, JobPostingDto, UpsertJobPostingDto } from "@/lib/types";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Drawer } from "@/components/ui/Drawer";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 const emptyJob: UpsertJobPostingDto = {
   title: "",
@@ -40,6 +41,7 @@ export default function CareersPage() {
   const [form, setForm] = useState<UpsertJobPostingDto>(emptyJob);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [jobFilter, setJobFilter] = useState<ActiveFilterValue>("active");
+  const [formOpen, setFormOpen] = useState(false);
 
   async function loadJobs() {
     try {
@@ -74,6 +76,7 @@ export default function CareersPage() {
       requirements: job.requirements,
       isActive: job.isActive,
     });
+    setFormOpen(true);
   }
 
   function resetForm() {
@@ -81,10 +84,16 @@ export default function CareersPage() {
     setForm(emptyJob);
   }
 
+  function closeDrawer() {
+    setFormOpen(false);
+    resetForm();
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (editingId) await api.put(`/api/careers/jobs/${editingId}`, form);
     else await api.post("/api/careers/jobs", form);
+    setFormOpen(false);
     resetForm();
     loadJobs();
   }
@@ -110,9 +119,17 @@ export default function CareersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[28px] font-bold text-text">Careers</h1>
-        <p className="mt-1 text-sm text-text-muted">Manage job postings and review applications.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold text-text">Careers</h1>
+          <p className="mt-1 text-sm text-text-muted">Manage job postings and review applications.</p>
+        </div>
+        {tab === "jobs" && (
+          <Button onClick={() => { resetForm(); setFormOpen(true); }}>
+            <Plus size={16} strokeWidth={2} />
+            New job posting
+          </Button>
+        )}
       </div>
 
       <div className="flex gap-1 border-b border-border">
@@ -134,19 +151,13 @@ export default function CareersPage() {
 
       {tab === "jobs" && (
         <>
-          <Card>
-            <CardHeader
-              title={editingId ? "Edit job posting" : "Add job posting"}
-              action={
-                editingId && (
-                  <Button variant="ghost" size="sm" onClick={resetForm}>
-                    <X size={14} strokeWidth={1.75} />
-                    Cancel
-                  </Button>
-                )
-              }
-            />
-            <CardBody>
+          <Drawer
+            open={formOpen}
+            onClose={closeDrawer}
+            title={editingId ? "Edit job posting" : "Add job posting"}
+            description="Job openings shown on the careers page."
+            width="640px"
+          >
               <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <Field label="Title">
@@ -180,8 +191,7 @@ export default function CareersPage() {
                   <Button type="submit">{editingId ? "Save changes" : "Add job posting"}</Button>
                 </div>
               </form>
-            </CardBody>
-          </Card>
+          </Drawer>
 
           <Card>
             <CardHeader

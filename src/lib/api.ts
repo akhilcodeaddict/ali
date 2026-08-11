@@ -1,3 +1,5 @@
+import { increment, decrement } from "./loading-store";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5299";
 
 export class ApiError extends Error {
@@ -76,36 +78,41 @@ async function request<T>(
     if (token) finalHeaders["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...rest,
-    headers: finalHeaders,
-  });
+  if (!isRetry) increment();
+  try {
+    const res = await fetch(`${API_URL}${path}`, {
+      ...rest,
+      headers: finalHeaders,
+    });
 
-  // Access token expired — try one silent refresh, then retry the request
-  if (res.status === 401 && auth && !isRetry && !path.startsWith("/api/auth/")) {
-    if (await tryRefresh()) {
-      return request<T>(path, options, true);
+    // Access token expired — try one silent refresh, then retry the request
+    if (res.status === 401 && auth && !isRetry && !path.startsWith("/api/auth/")) {
+      if (await tryRefresh()) {
+        return await request<T>(path, options, true);
+      }
+      localStorage.removeItem("wbt_token");
+      localStorage.removeItem("wbt_refresh");
+      if (typeof window !== "undefined") window.location.href = "/login";
     }
-    localStorage.removeItem("wbt_token");
-    localStorage.removeItem("wbt_refresh");
-    if (typeof window !== "undefined") window.location.href = "/login";
+
+    if (res.status === 204) return undefined as T;
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : undefined;
+
+    if (!res.ok) {
+      const message = data?.message ?? res.statusText;
+      throw new ApiError(res.status, message);
+    }
+
+    if (rest.method && rest.method !== "GET") {
+      fetch("/api/revalidate-proxy", { method: "POST" }).catch(() => {});
+    }
+
+    return data as T;
+  } finally {
+    if (!isRetry) decrement();
   }
-
-  if (res.status === 204) return undefined as T;
-
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : undefined;
-
-  if (!res.ok) {
-    const message = data?.message ?? res.statusText;
-    throw new ApiError(res.status, message);
-  }
-
-  if (rest.method && rest.method !== "GET") {
-    fetch("/api/revalidate-proxy", { method: "POST" }).catch(() => {});
-  }
-
-  return data as T;
 }
 
 export const api = {

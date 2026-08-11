@@ -259,7 +259,7 @@ export default function SettingsPage() {
                 <Input
                   value={str(form.smtpFromName)}
                   onChange={(e) => set("smtpFromName", e.target.value)}
-                  placeholder="Jalasthali"
+                  placeholder="గణన యంత్రం (Ganana Yantramu)"
                 />
               </Field>
               <Field label="Admin notification email">

@@ -12,7 +12,7 @@ const variantClasses: Record<Variant, string> = {
   primary:
     "bg-primary text-white shadow-[var(--shadow-button)] hover:bg-primary-dark active:translate-y-px disabled:opacity-50",
   secondary:
-    "bg-white text-heading border border-border shadow-[var(--shadow-button)] hover:bg-section hover:shadow-[var(--shadow-card-hover)] disabled:opacity-50",
+    "bg-surface text-heading border border-border shadow-[var(--shadow-button)] hover:bg-section hover:shadow-[var(--shadow-card-hover)] disabled:opacity-50",
   ghost:
     "bg-transparent text-text-muted hover:text-text hover:bg-section disabled:opacity-50",
   danger:
@@ -25,7 +25,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={clsx(
-          "inline-flex items-center justify-center gap-1.5 rounded-md font-semibold transition-all duration-150 cursor-pointer",
+          "inline-flex items-center justify-center gap-1.5 rounded-lg font-semibold transition-all duration-150 cursor-pointer",
           "focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]",
           size === "md" ? "px-3.5 py-2 text-sm" : "px-2.5 py-1.5 text-[13px]",
           variantClasses[variant],

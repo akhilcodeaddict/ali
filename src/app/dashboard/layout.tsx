@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { SideNav, NavSection } from "@/components/ui/SideNav";
 import { TopBar } from "@/components/dashboard/TopBar";
+import { LoadingBar } from "@/components/ui/LoadingBar";
 import clsx from "clsx";
 import { ToastProvider } from "@/lib/toast-context";
 import Image from "next/image";
@@ -46,7 +47,7 @@ import {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { token, isLoading, can } = useAuth();
+  const { token, isLoading, can, name, email, roles } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -141,27 +142,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const sections = rawSections.filter((s) => s.items.length > 0);
 
+  const initials = (name || email || "?")
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const roleLabel = roles[0] ?? "Administrator";
+
   return (
     <ToastProvider>
+    <LoadingBar />
     <div className="min-h-screen bg-section">
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-40 flex w-[240px] flex-col border-r border-border bg-white transition-transform duration-200",
+          "fixed inset-y-0 left-0 z-40 flex w-[240px] flex-col bg-gradient-to-b from-[#150c2e] to-[#1b0f3a] transition-transform duration-200",
           !sidebarOpen && "-translate-x-full"
         )}
       >
-        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-border px-5">
+        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-white/10 px-5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-            <Image src="/logo.png" alt="Jalasthali" width={40} height={40} priority />
+            <Image src="/logo-icon.png" alt="గణన యంత్రం (Ganana Yantramu)" width={40} height={40} priority />
           </div>
           <div className="leading-tight">
-            <p className="text-[15px] font-bold text-heading">Jalasthali</p>
-            <p className="text-[11px] font-medium text-text-helper">CMS Website Builder</p>
+            <p className="text-[15px] font-bold text-white">గణన యంత్రం (Ganana Yantramu)</p>
+            <p className="text-[11px] font-medium text-white/40">CMS Website Builder</p>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 py-4">
           <SideNav sections={sections} />
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2.5 border-t border-white/10 px-4 py-3.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-xs font-bold text-white">
+            {initials}
+          </span>
+          <div className="min-w-0 leading-tight">
+            <p className="truncate text-[13px] font-semibold text-white">{name || "Admin"}</p>
+            <p className="truncate text-[11px] text-white/40">{roleLabel}</p>
+          </div>
         </div>
       </aside>
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { BranchDto, BranchStatus, UpsertBranchDto } from "@/lib/types";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
-import { Pencil, Trash2, X, Building2 } from "lucide-react";
+import { Drawer } from "@/components/ui/Drawer";
+import { Plus, Pencil, Trash2, Building2 } from "lucide-react";
 
 const empty: UpsertBranchDto = {
   name: "",
@@ -47,6 +48,7 @@ export default function BranchesPage() {
   const [form, setForm] = useState<UpsertBranchDto>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"active" | "closed" | "all">("active");
+  const [formOpen, setFormOpen] = useState(false);
 
   async function load() {
     try {
@@ -79,11 +81,17 @@ export default function BranchesPage() {
       displayOrder: b.displayOrder,
       status: b.status,
     });
+    setFormOpen(true);
   }
 
   function resetForm() {
     setEditingId(null);
     setForm(empty);
+  }
+
+  function closeDrawer() {
+    setFormOpen(false);
+    resetForm();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -92,6 +100,7 @@ export default function BranchesPage() {
     try {
       if (editingId) await api.put(`/api/branches/${editingId}`, form);
       else await api.post("/api/branches", form);
+      setFormOpen(false);
       resetForm();
       load();
     } catch (err) {
@@ -113,28 +122,28 @@ export default function BranchesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[28px] font-bold text-heading">Branches</h1>
-        <p className="mt-1 text-sm text-text-muted">Business locations and offices.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold text-heading">Branches</h1>
+          <p className="mt-1 text-sm text-text-muted">Business locations and offices.</p>
+        </div>
+        <Button onClick={() => { resetForm(); setFormOpen(true); }}>
+          <Plus size={16} strokeWidth={2} />
+          New branch
+        </Button>
       </div>
 
       {error && (
         <p className="rounded-md bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>
       )}
 
-      <Card>
-        <CardHeader
-          title={editingId ? "Edit branch" : "Add branch"}
-          action={
-            editingId && (
-              <Button variant="ghost" size="sm" onClick={resetForm}>
-                <X size={14} strokeWidth={1.75} />
-                Cancel
-              </Button>
-            )
-          }
-        />
-        <CardBody>
+      <Drawer
+        open={formOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Edit branch" : "Add branch"}
+        description="Business locations and offices shown on the public site."
+        width="640px"
+      >
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Field label="Branch name">
@@ -210,8 +219,7 @@ export default function BranchesPage() {
               <Button type="submit">{editingId ? "Save changes" : "Add branch"}</Button>
             </div>
           </form>
-        </CardBody>
-      </Card>
+      </Drawer>
 
       <Card>
         <CardHeader

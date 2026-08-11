@@ -13,7 +13,8 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
-import { Pencil, Trash2, X, Check, Mail, UploadCloud } from "lucide-react";
+import { Drawer } from "@/components/ui/Drawer";
+import { Plus, Pencil, Trash2, X, Check, Mail, UploadCloud, Copy, CopyCheck } from "lucide-react";
 
 const empty: UpsertTestimonialDto = {
   name: "",
@@ -108,6 +109,9 @@ export default function TestimonialsPage() {
   const [requestName, setRequestName] = useState("");
   const [requestEmail, setRequestEmail] = useState("");
   const [sendingRequest, setSendingRequest] = useState(false);
+  const [requestLink, setRequestLink] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
 
   async function load() {
     try {
@@ -146,11 +150,17 @@ export default function TestimonialsPage() {
       extraImages: t.extraImages ?? null,
       extraVideos: t.extraVideos ?? null,
     });
+    setFormOpen(true);
   }
 
   function resetForm() {
     setEditingId(null);
     setForm(empty);
+  }
+
+  function closeDrawer() {
+    setFormOpen(false);
+    resetForm();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -159,6 +169,7 @@ export default function TestimonialsPage() {
       if (editingId) await api.put(`/api/testimonials/${editingId}`, form);
       else await api.post("/api/testimonials", form);
       toast.success(editingId ? "Testimonial updated" : "Testimonial added");
+      setFormOpen(false);
       resetForm();
       load();
     } catch (err) {
@@ -190,9 +201,11 @@ export default function TestimonialsPage() {
   async function handleSendRequest(e: React.FormEvent) {
     e.preventDefault();
     setSendingRequest(true);
+    setLinkCopied(false);
     try {
-      await api.post("/api/testimonials/send-request", { name: requestName, email: requestEmail });
+      const result = await api.post<{ link: string }>("/api/testimonials/send-request", { name: requestName, email: requestEmail });
       toast.success("Testimonial request sent");
+      setRequestLink(result.link);
       setRequestName("");
       setRequestEmail("");
     } catch (err) {
@@ -200,6 +213,13 @@ export default function TestimonialsPage() {
     } finally {
       setSendingRequest(false);
     }
+  }
+
+  async function copyRequestLink() {
+    if (!requestLink) return;
+    await navigator.clipboard.writeText(requestLink);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   }
 
   const pendingCount = items?.filter((t) => t.approvalStatus === "Pending").length ?? 0;
@@ -212,11 +232,17 @@ export default function TestimonialsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[28px] font-bold text-text">Testimonials</h1>
-        <p className="mt-1 text-sm text-text-muted">
-          Client quotes shown on the homepage{pendingCount > 0 && ` — ${pendingCount} awaiting approval`}.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold text-text">Testimonials</h1>
+          <p className="mt-1 text-sm text-text-muted">
+            Client quotes shown on the homepage{pendingCount > 0 && ` — ${pendingCount} awaiting approval`}.
+          </p>
+        </div>
+        <Button onClick={() => { resetForm(); setFormOpen(true); }}>
+          <Plus size={16} strokeWidth={2} />
+          New testimonial
+        </Button>
       </div>
 
       <Card>
@@ -241,22 +267,35 @@ export default function TestimonialsPage() {
               {sendingRequest ? "Sending..." : "Send request"}
             </Button>
           </form>
+
+          {requestLink && (
+            <div className="mt-4 flex items-center gap-2 rounded-md border border-border bg-section px-3 py-2.5">
+              <span className="min-w-0 flex-1 truncate text-[13px] text-text-muted">{requestLink}</span>
+              <Button variant="secondary" size="sm" onClick={copyRequestLink}>
+                {linkCopied ? (
+                  <>
+                    <CopyCheck size={14} strokeWidth={1.75} />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy size={14} strokeWidth={1.75} />
+                    Copy link
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </CardBody>
       </Card>
 
-      <Card>
-        <CardHeader
-          title={editingId ? "Edit testimonial" : "Add testimonial"}
-          action={
-            editingId && (
-              <Button variant="ghost" size="sm" onClick={resetForm}>
-                <X size={14} strokeWidth={1.75} />
-                Cancel
-              </Button>
-            )
-          }
-        />
-        <CardBody>
+      <Drawer
+        open={formOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Edit testimonial" : "Add testimonial"}
+        description="Client quotes shown on the homepage."
+        width="640px"
+      >
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Field label="Name">
@@ -338,8 +377,7 @@ export default function TestimonialsPage() {
               <Button type="submit">{editingId ? "Save changes" : "Add testimonial"}</Button>
             </div>
           </form>
-        </CardBody>
-      </Card>
+      </Drawer>
 
       <Card>
         <CardHeader

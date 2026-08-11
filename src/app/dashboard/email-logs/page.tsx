@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { useToast } from "@/lib/toast-context";
+import { Drawer } from "@/components/ui/Drawer";
 import { Trash2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface EmailLog {
@@ -15,6 +16,7 @@ interface EmailLog {
   toEmail: string;
   subject: string;
   templateKey: string;
+  body: string | null;
   success: boolean;
   errorMessage: string | null;
   createdAt: string;
@@ -39,6 +41,7 @@ export default function EmailLogsPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [clearing, setClearing] = useState(false);
+  const [selected, setSelected] = useState<EmailLog | null>(null);
 
   async function load(p = page) {
     try {
@@ -131,7 +134,7 @@ export default function EmailLogsPage() {
               <TableHead columns={["Recipient", "Subject", "Template", "Status", "When"]} />
               <tbody>
                 {logs.map((l) => (
-                  <TableRow key={l.id}>
+                  <TableRow key={l.id} onClick={() => setSelected(l)} className="cursor-pointer">
                     <TableCell>
                       <p className="font-mono text-xs">{l.toEmail}</p>
                     </TableCell>
@@ -186,6 +189,68 @@ export default function EmailLogsPage() {
           </>
         )}
       </Card>
+
+      <Drawer
+        open={selected !== null}
+        onClose={() => setSelected(null)}
+        title="Email details"
+        description={selected ? relativeTime(selected.createdAt) : undefined}
+        width="640px"
+      >
+        {selected && (
+          <div className="flex flex-col gap-5">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-xs font-medium text-text-helper">To</p>
+                <p className="mt-0.5 font-mono text-[13px] text-text">{selected.toEmail}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-text-helper">Template</p>
+                <code className="mt-0.5 block text-[13px] text-text">{selected.templateKey}</code>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs font-medium text-text-helper">Subject</p>
+                <p className="mt-0.5 text-[13px] font-semibold text-text">{selected.subject}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-text-helper">Status</p>
+                <Badge tone={selected.success ? "success" : "warning"} className="mt-1">
+                  {selected.success ? "Sent" : "Failed"}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-text-helper">Sent at</p>
+                <p className="mt-0.5 text-[13px] text-text">{new Date(selected.createdAt).toLocaleString()}</p>
+              </div>
+            </div>
+
+            {selected.errorMessage && (
+              <div className="rounded-md border border-status-danger-text/20 bg-status-danger-bg px-4 py-3">
+                <p className="text-xs font-semibold text-status-danger-text">Error</p>
+                <p className="mt-1 whitespace-pre-wrap text-[13px] text-status-danger-text">{selected.errorMessage}</p>
+              </div>
+            )}
+
+            <div>
+              <p className="mb-2 text-xs font-medium text-text-helper">
+                Email body {selected.success ? "— as sent" : "— as it would have been sent"}
+              </p>
+              {selected.body ? (
+                <iframe
+                  title="Email body preview"
+                  srcDoc={selected.body}
+                  sandbox=""
+                  className="h-[420px] w-full rounded-md border border-border bg-white"
+                />
+              ) : (
+                <p className="rounded-md border border-border bg-section px-4 py-6 text-center text-sm text-text-muted">
+                  No body was recorded for this log entry.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </Drawer>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { NewsDto, UpsertNewsDto } from "@/lib/types";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
@@ -13,7 +13,8 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { CategorySelect } from "@/components/ui/CategorySelect";
 import { useToast } from "@/lib/toast-context";
 import { ImageUrlField } from "@/components/media/MediaPicker";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Drawer } from "@/components/ui/Drawer";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 const empty: UpsertNewsDto = {
   title: "",
@@ -42,6 +43,7 @@ export default function NewsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [slugTouched, setSlugTouched] = useState(false);
   const [filter, setFilter] = useState<"published" | "draft" | "all">("published");
+  const [formOpen, setFormOpen] = useState(false);
 
   async function load() {
     try {
@@ -68,6 +70,7 @@ export default function NewsPage() {
       isFeatured: n.isFeatured,
       isPublished: n.isPublished,
     });
+    setFormOpen(true);
   }
 
   function resetForm() {
@@ -76,12 +79,18 @@ export default function NewsPage() {
     setForm(empty);
   }
 
+  function closeDrawer() {
+    setFormOpen(false);
+    resetForm();
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
       if (editingId) await api.put(`/api/news/${editingId}`, form);
       else await api.post("/api/news", form);
       toast.success(editingId ? "News item updated" : "News item created");
+      setFormOpen(false);
       resetForm();
       load();
     } catch (err) {
@@ -108,24 +117,24 @@ export default function NewsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[28px] font-bold text-heading">News</h1>
-        <p className="mt-1 text-sm text-text-muted">News items and press releases.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold text-heading">News</h1>
+          <p className="mt-1 text-sm text-text-muted">News items and press releases.</p>
+        </div>
+        <Button onClick={() => { resetForm(); setFormOpen(true); }}>
+          <Plus size={16} strokeWidth={2} />
+          New news item
+        </Button>
       </div>
 
-      <Card>
-        <CardHeader
-          title={editingId ? "Edit news item" : "Add news item"}
-          action={
-            editingId && (
-              <Button variant="ghost" size="sm" onClick={resetForm}>
-                <X size={14} strokeWidth={1.75} />
-                Cancel
-              </Button>
-            )
-          }
-        />
-        <CardBody>
+      <Drawer
+        open={formOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Edit news item" : "Add news item"}
+        description="News items and press releases shown on the public site."
+        width="640px"
+      >
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Field label="Title">
@@ -169,8 +178,7 @@ export default function NewsPage() {
               <Button type="submit">{editingId ? "Save changes" : "Add news item"}</Button>
             </div>
           </form>
-        </CardBody>
-      </Card>
+      </Drawer>
 
       <Card>
         <CardHeader

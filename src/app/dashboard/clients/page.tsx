@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { ClientLogoDto } from "@/lib/types";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
@@ -13,7 +13,8 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Drawer } from "@/components/ui/Drawer";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 const empty = { name: "", logoUrl: "", order: 0, isActive: true };
 
@@ -23,6 +24,7 @@ export default function ClientsPage() {
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<ActiveFilterValue>("active");
+  const [formOpen, setFormOpen] = useState(false);
 
   async function load() {
     try {
@@ -37,9 +39,11 @@ export default function ClientsPage() {
   function startEdit(logo: ClientLogoDto) {
     setEditingId(logo.id);
     setForm({ name: logo.name, logoUrl: logo.logoUrl, order: logo.order, isActive: logo.isActive });
+    setFormOpen(true);
   }
 
   function resetForm() { setEditingId(null); setForm(empty); }
+  function closeDrawer() { setFormOpen(false); resetForm(); }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,6 +51,7 @@ export default function ClientsPage() {
       if (editingId) await api.put(`/api/clients/${editingId}`, form);
       else await api.post("/api/clients", form);
       toast.success(editingId ? "Client updated" : "Client added");
+      setFormOpen(false);
       resetForm();
       load();
     } catch (err) {
@@ -69,21 +74,24 @@ export default function ClientsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[28px] font-bold text-text">Clients</h1>
-        <p className="mt-1 text-sm text-text-muted">Logos shown in the client carousel.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold text-text">Clients</h1>
+          <p className="mt-1 text-sm text-text-muted">Logos shown in the client carousel.</p>
+        </div>
+        <Button onClick={() => { resetForm(); setFormOpen(true); }}>
+          <Plus size={16} strokeWidth={2} />
+          New client
+        </Button>
       </div>
 
-      <Card>
-        <CardHeader
-          title={editingId ? "Edit client" : "Add client"}
-          action={editingId && (
-            <Button variant="ghost" size="sm" onClick={resetForm}>
-              <X size={14} strokeWidth={1.75} /> Cancel
-            </Button>
-          )}
-        />
-        <CardBody>
+      <Drawer
+        open={formOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Edit client" : "Add client"}
+        description="Logos shown in the client carousel."
+        width="520px"
+      >
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
               <Field label="Name">
@@ -101,8 +109,7 @@ export default function ClientsPage() {
               <Button type="submit">{editingId ? "Save changes" : "Add client"}</Button>
             </div>
           </form>
-        </CardBody>
-      </Card>
+      </Drawer>
 
       <Card>
         <CardHeader

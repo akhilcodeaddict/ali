@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  /* Modern SaaS palette (Linear / Notion / Vercel inspired) */
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
-  --color-primary-light: #eff6ff;
-  --color-heading: #0f172a;
-  --color-surface: #ffffff;
-  --color-section: #f8fafc;
-  --color-border: #e5e7eb;
-  --color-text: #1e293b;
-  --color-text-muted: #475569;
-  --color-text-helper: #64748b;
+@custom-variant dark (&:is(.dark *));
 
-  --color-status-success-bg: #ecfdf5;
-  --color-status-success-text: #059669;
+/* Satoshi — matches the NextAdmin design language adopted for this dashboard */
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-display: swap;
+}
+
+:root {
+  /* NextAdmin-style palette */
+  --color-primary: #5750f1;
+  --color-primary-dark: #4740c9;
+  --color-primary-light: rgba(87, 80, 241, 0.07);
+  --color-heading: #111928;
+  --color-surface: #ffffff;
+  --color-section: #f3f4f6;
+  --color-border: #e6ebf1;
+  --color-text: #1f2a37;
+  --color-text-muted: #4b5563;
+  --color-text-helper: #6b7280;
+
+  --color-status-success-bg: #e9fbf0;
+  --color-status-success-text: #1a8245;
   --color-status-warning-bg: #fffbeb;
   --color-status-warning-text: #d97706;
-  --color-status-danger-bg: #fef2f2;
-  --color-status-danger-text: #dc2626;
-  --color-status-neutral-bg: #f1f5f9;
-  --color-status-neutral-text: #475569;
+  --color-status-danger-bg: #fef3f3;
+  --color-status-danger-text: #e10e0e;
+  --color-status-neutral-bg: #f3f4f6;
+  --color-status-neutral-text: #4b5563;
 
   --color-accent-highlight: #fde68a;
 
@@ -29,10 +63,39 @@
   --radius-lg: 16px;
   --radius-full: 9999px;
 
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.05);
-  --shadow-card-hover: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.05);
-  --shadow-button: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.22);
+  --shadow-card: 0px 1px 2px 0px rgba(0, 0, 0, 0.12);
+  --shadow-card-hover: 0px 8px 13px -3px rgba(0, 0, 0, 0.07);
+  --shadow-button: 0px 1px 2px 0px rgba(0, 0, 0, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(87, 80, 241, 0.18);
+}
+
+.dark {
+  --color-primary: #5750f1;
+  --color-primary-dark: #6a63f6;
+  --color-primary-light: rgba(255, 255, 255, 0.1);
+  --color-heading: #ffffff;
+  --color-surface: #122031;
+  --color-section: #020d1a;
+  --color-border: #27303e;
+  --color-text: #d1d5db;
+  --color-text-muted: #9ca3af;
+  --color-text-helper: #6b7280;
+
+  --color-status-success-bg: rgba(34, 173, 92, 0.15);
+  --color-status-success-text: #57de8f;
+  --color-status-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-status-warning-text: #fcd34d;
+  --color-status-danger-bg: rgba(242, 48, 48, 0.15);
+  --color-status-danger-text: #f89090;
+  --color-status-neutral-bg: rgba(255, 255, 255, 0.06);
+  --color-status-neutral-text: #9ca3af;
+
+  --shadow-card: 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0px 8px 13px -3px rgba(0, 0, 0, 0.35);
+  --shadow-button: 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --shadow-focus: 0 0 0 3px rgba(87, 80, 241, 0.35);
+
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -63,7 +126,7 @@
   --radius-lg: var(--radius-lg);
   --radius-full: var(--radius-full);
 
-  --font-sans: var(--font-inter);
+  --font-sans: "Satoshi", var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 html {
@@ -144,3 +207,38 @@ h1, h2, h3 {
 }
 .animate-toast-in  { animation: toast-in  0.28s cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-toast-bar { animation: toast-bar linear forwards; }
+
+/* Login branding panel — slow cinematic drift on the illustration + independent twinkling sparkles */
+@keyframes kenburns {
+  0%   { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.06) translate(-1%, -1%); }
+}
+.animate-kenburns { animation: kenburns 22s ease-in-out infinite alternate; }
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.6); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.animate-sparkle {
+  animation: sparkle 2.6s ease-in-out infinite;
+  box-shadow: 0 0 6px 1px rgba(255,255,255,0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-kenburns, .animate-sparkle { animation: none; }
+}
+
+/* Global top loading bar, active while any API request is in flight */
+@keyframes loading-bar {
+  0%   { transform: translateX(-100%); }
+  50%  { transform: translateX(50%); }
+  100% { transform: translateX(250%); }
+}
+.animate-loading-bar { animation: loading-bar 1.1s ease-in-out infinite; }
+
+/* Slide-over drawer entrance */
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.animate-drawer-in { animation: drawer-in 0.22s cubic-bezier(0.22,1,0.36,1) forwards; }

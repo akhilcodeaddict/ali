@@ -28,7 +28,7 @@ export function SideNav({ sections }: { sections: NavSection[] }) {
       {sections.map((section, i) => (
         <div key={section.title ?? i}>
           {section.title && (
-            <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-text-helper">
+            <p className="mb-2 px-3.5 text-[11px] font-bold uppercase tracking-wider text-white/35">
               {section.title}
             </p>
           )}
@@ -41,11 +41,11 @@ export function SideNav({ sections }: { sections: NavSection[] }) {
                   <span
                     key={item.label}
                     title="Coming soon"
-                    className="flex cursor-default items-center gap-2.5 rounded-sm px-3 py-[7px] text-sm font-medium text-text-helper/70"
+                    className="flex cursor-default items-center gap-2.5 rounded-lg px-3.5 py-2.5 text-sm font-medium text-white/30"
                   >
-                    <Icon size={16} strokeWidth={1.75} className="text-text-helper/60" />
+                    <Icon size={18} strokeWidth={1.75} className="text-white/25" />
                     <span className="flex-1">{item.label}</span>
-                    <span className="rounded-full bg-status-neutral-bg px-1.5 py-px text-[10px] font-semibold text-text-helper">
+                    <span className="rounded-full bg-white/10 px-1.5 py-px text-[10px] font-semibold text-white/40">
                       Soon
                     </span>
                   </span>
@@ -60,18 +60,18 @@ export function SideNav({ sections }: { sections: NavSection[] }) {
                   key={item.href}
                   href={item.href}
                   className={clsx(
-                    "group flex items-center gap-2.5 rounded-sm px-3 py-[7px] text-sm font-medium transition-colors duration-100",
+                    "group flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 text-sm font-medium transition-colors duration-100",
                     active
-                      ? "bg-primary-light text-primary"
-                      : "text-text-muted hover:bg-section hover:text-text"
+                      ? "bg-gradient-to-r from-violet-600 to-purple-500 text-white shadow-[0_4px_14px_-2px_rgba(124,58,237,0.55)]"
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
                   )}
                 >
                   <Icon
-                    size={16}
+                    size={18}
                     strokeWidth={1.75}
                     className={clsx(
                       "transition-colors",
-                      active ? "text-primary" : "text-text-helper group-hover:text-text-muted"
+                      active ? "text-white" : "text-white/40 group-hover:text-white/70"
                     )}
                   />
                   {item.label}
