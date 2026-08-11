@@ -122,7 +122,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       items: [
         { href: "#", label: "Analytics", icon: BarChart3, soon: true },
         { href: "#", label: "Traffic", icon: TrendingUp, soon: true },
-        ...(view("contact") ? [{ href: "/dashboard/contact", label: "Leads", icon: Inbox }] : []),
+        ...(view("contact") ? [{ href: "/dashboard/contact", label: "Contact & Leads", icon: Inbox }] : []),
         ...(view("contact") ? [{ href: "/dashboard/bookings", label: "Bookings", icon: CalendarClock }] : []),
       ],
     },

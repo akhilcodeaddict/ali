@@ -152,7 +152,10 @@ export default function SettingsPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Contact" description="Contact details displayed on the site" />
+          <CardHeader
+            title="Contact"
+            description="Used in email template placeholders ({{phone}}, {{email}}, {{address}}) — not shown on the public site. To change the phone/email/address customers see in the Contact section, use Contact & Leads → Office details instead."
+          />
           <CardBody>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Field label="Contact email">
