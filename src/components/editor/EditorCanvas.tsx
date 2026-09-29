@@ -39,13 +39,13 @@ function ChildAddMenu({ parentId, onAddChild }: { parentId: string; onAddChild: 
           e.stopPropagation();
           setOpen((o) => !o);
         }}
-        className="flex items-center gap-1 rounded-md border border-dashed border-border px-2.5 py-1.5 text-xs font-semibold text-text-helper transition-colors hover:border-primary hover:text-primary cursor-pointer"
+        className="flex items-center gap-1 rounded-lg border border-dashed border-border px-2.5 py-1.5 text-xs font-semibold text-text-helper transition-colors hover:border-primary hover:text-primary cursor-pointer"
       >
         <Plus size={13} strokeWidth={2} />
         Add block
       </button>
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-1 w-44 rounded-md border border-border bg-white p-1 shadow-[var(--shadow-card-hover)]">
+        <div className="absolute left-0 top-full z-30 mt-1 w-44 rounded-lg border border-border bg-surface p-1 shadow-[var(--shadow-card-hover)]">
           {Object.entries(blockRegistry)
             .filter(([, def]) => !def.container)
             .map(([type, def]) => (
@@ -85,13 +85,13 @@ function ChildBlock({
         cb.onSelect(block.id);
       }}
       className={clsx(
-        "group/child relative rounded-md border p-3 transition-colors cursor-pointer",
+        "group/child relative rounded-lg border p-3 transition-colors cursor-pointer",
         selected ? "border-primary bg-primary-light/40" : "border-transparent hover:border-border"
       )}
     >
       <div
         className={clsx(
-          "absolute -top-2.5 right-2 z-10 hidden items-center gap-0.5 rounded border border-border bg-white px-1 py-0.5 shadow-sm",
+          "absolute -top-2.5 right-2 z-10 hidden items-center gap-0.5 rounded border border-border bg-surface px-1 py-0.5 shadow-sm",
           "group-hover/child:flex",
           selected && "flex"
         )}
@@ -167,7 +167,7 @@ function SortableBlock({ block, cb }: { block: ContentBlock; cb: CanvasCallbacks
         cb.onSelect(block.id);
       }}
       className={clsx(
-        "group relative rounded-lg border bg-white transition-shadow cursor-pointer",
+        "group relative rounded-lg border bg-surface transition-shadow cursor-pointer",
         selected
           ? "border-primary shadow-[var(--shadow-focus)]"
           : "border-transparent hover:border-border hover:shadow-[var(--shadow-card)]",
@@ -176,7 +176,7 @@ function SortableBlock({ block, cb }: { block: ContentBlock; cb: CanvasCallbacks
     >
       <div
         className={clsx(
-          "absolute -left-0.5 top-1/2 z-10 -translate-x-full -translate-y-1/2 rounded-md border border-border bg-white p-1 text-text-helper shadow-sm transition-opacity cursor-grab active:cursor-grabbing",
+          "absolute -left-0.5 top-1/2 z-10 -translate-x-full -translate-y-1/2 rounded-lg border border-border bg-surface p-1 text-text-helper shadow-sm transition-opacity cursor-grab active:cursor-grabbing",
           selected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         )}
         {...attributes}
@@ -187,7 +187,7 @@ function SortableBlock({ block, cb }: { block: ContentBlock; cb: CanvasCallbacks
 
       <div
         className={clsx(
-          "absolute -top-2.5 left-3 z-10 rounded border border-border bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-text-helper transition-opacity",
+          "absolute -top-2.5 left-3 z-10 rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-text-helper transition-opacity",
           selected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         )}
       >

@@ -53,7 +53,7 @@ function ChipListField({
   }
 
   return (
-    <div className="flex flex-wrap gap-1.5 rounded-md border border-border bg-white p-2 focus-within:border-primary focus-within:shadow-[var(--shadow-focus)]">
+    <div className="flex flex-wrap gap-1.5 rounded-lg border border-border bg-surface p-2 focus-within:border-primary focus-within:shadow-[var(--shadow-focus)]">
       {values.map((v) => (
         <span key={v} className="inline-flex items-center gap-1 rounded-full bg-primary-light px-2.5 py-0.5 text-xs font-medium text-primary">
           {v}
@@ -195,7 +195,7 @@ export default function ProductsPage() {
                 <select
                   value={form.productType}
                   onChange={(e) => setForm({ ...form, productType: e.target.value as ProductType, allowRebooking: false })}
-                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
                 >
                   <option value="Count">Count — stock-based ordering</option>
                   <option value="Service">Service — calendar booking</option>
@@ -209,7 +209,7 @@ export default function ProductsPage() {
                 <select
                   value={form.categoryId ?? ""}
                   onChange={(e) => setForm({ ...form, categoryId: e.target.value || null, subCategoryId: null })}
-                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
                 >
                   <option value="">— None —</option>
                   {topCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -220,7 +220,7 @@ export default function ProductsPage() {
                   value={form.subCategoryId ?? ""}
                   onChange={(e) => setForm({ ...form, subCategoryId: e.target.value || null })}
                   disabled={!form.categoryId || subCategories.length === 0}
-                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)] disabled:opacity-50"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)] disabled:opacity-50"
                 >
                   <option value="">— None —</option>
                   {subCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -230,7 +230,7 @@ export default function ProductsPage() {
                 <select
                   value={form.gender}
                   onChange={(e) => setForm({ ...form, gender: e.target.value as ProductGender })}
-                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
                 >
                   {GENDERS.map((g) => <option key={g} value={g}>{g === "NotApplicable" ? "Not applicable" : g}</option>)}
                 </select>
@@ -249,7 +249,7 @@ export default function ProductsPage() {
                 <select
                   value={form.currency}
                   onChange={(e) => setForm({ ...form, currency: e.target.value })}
-                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
                 >
                   {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>

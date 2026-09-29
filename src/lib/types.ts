@@ -24,85 +24,13 @@ export interface UpsertPageDto {
   sortOrder: number;
 }
 
-export interface BlogDto {
-  id: string;
-  title: string;
-  slug: string;
-  summary: string;
-  content: string;
-  author: string;
-  category: string;
-  coverImageUrl?: string | null;
-  isPublished: boolean;
-  publishedAt?: string | null;
-}
-
-export interface UpsertBlogDto {
-  title: string;
-  slug: string;
-  summary: string;
-  content: string;
-  author: string;
-  category: string;
-  coverImageUrl?: string | null;
-  isPublished: boolean;
-}
-
-export interface TeamMemberDto {
-  id: string;
-  name: string;
-  title: string;
-  experience?: string | null;
-  isSpecial: boolean;
-  order: number;
-  bulletPoints: string[];
-  photoUrl?: string | null;
-  linkedInUrl?: string | null;
-  twitterUrl?: string | null;
-  instagramUrl?: string | null;
-  facebookUrl?: string | null;
-  websiteUrl?: string | null;
-  isActive: boolean;
-}
-
-export interface UpsertTeamMemberDto {
-  name: string;
-  title: string;
-  experience?: string | null;
-  isSpecial: boolean;
-  order: number;
-  bulletPoints: string[];
-  photoUrl?: string | null;
-  linkedInUrl?: string | null;
-  twitterUrl?: string | null;
-  instagramUrl?: string | null;
-  facebookUrl?: string | null;
-  websiteUrl?: string | null;
-  isActive: boolean;
-}
-
-export interface TeamStatsDto {
-  id: string;
-  qualifiedCAs: number;
-  caFinalists: number;
-  mbaOrBCom: number;
-  articleAssistants: number;
-}
-
-export interface ClientLogoDto {
-  id: string;
-  name: string;
-  logoUrl: string;
-  order: number;
-  isActive: boolean;
-}
-
 export type TestimonialApprovalStatus = "Pending" | "Approved" | "Rejected";
 
 export interface TestimonialDto {
   id: string;
   name: string;
   designation: string;
+  headline?: string | null;
   message: string;
   photoUrl?: string | null;
   rating: number;
@@ -119,6 +47,7 @@ export interface TestimonialDto {
 export interface UpsertTestimonialDto {
   name: string;
   designation: string;
+  headline?: string | null;
   message: string;
   photoUrl?: string | null;
   rating: number;
@@ -129,43 +58,6 @@ export interface UpsertTestimonialDto {
   servicesBooked?: string[] | null;
   extraImages?: string[] | null;
   extraVideos?: string[] | null;
-}
-
-export type JobApplicationStatus = "Pending" | "Reviewed" | "Shortlisted" | "Rejected";
-
-export interface JobPostingDto {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  shortDescription: string;
-  description: string;
-  requirements: string;
-  isActive: boolean;
-}
-
-export interface UpsertJobPostingDto {
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  shortDescription: string;
-  description: string;
-  requirements: string;
-  isActive: boolean;
-}
-
-export interface JobApplicationDto {
-  id: string;
-  jobPostingId: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  coverNote?: string | null;
-  resumeUrl: string;
-  status: JobApplicationStatus;
-  createdAt: string;
 }
 
 export type BookingStatus = "Pending" | "Confirmed" | "Completed" | "Cancelled";
@@ -229,56 +121,6 @@ export interface HeroSlideDto {
   isActive: boolean;
 }
 
-export interface NewsDto {
-  id: string;
-  title: string;
-  slug: string;
-  summary: string;
-  content: string;
-  category: string;
-  coverImageUrl?: string | null;
-  isFeatured: boolean;
-  isPublished: boolean;
-  publishedAt?: string | null;
-  createdAt: string;
-}
-
-export interface UpsertNewsDto {
-  title: string;
-  slug: string;
-  summary: string;
-  content: string;
-  category: string;
-  coverImageUrl?: string | null;
-  isFeatured: boolean;
-  isPublished: boolean;
-}
-
-export interface DocumentDto {
-  id: string;
-  title: string;
-  description?: string | null;
-  fileUrl: string;
-  fileName: string;
-  contentType: string;
-  fileSize: number;
-  category: string;
-  author: string;
-  isPublished: boolean;
-  downloadCount: number;
-  version: number;
-  createdAt: string;
-  updatedAt?: string | null;
-}
-
-export interface UpdateDocumentDto {
-  title: string;
-  description?: string | null;
-  category: string;
-  author: string;
-  isPublished: boolean;
-}
-
 export type ProductGender = "NotApplicable" | "Male" | "Female" | "Unisex" | "Kids";
 export type ProductType = "Count" | "Service";
 
@@ -340,46 +182,6 @@ export interface UpsertProductDto {
   galleryImages?: string[] | null;
 }
 
-export type BranchStatus = "Open" | "TemporarilyClosed" | "Closed";
-
-export interface BranchDto {
-  id: string;
-  name: string;
-  addressLine: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  phone: string;
-  email: string;
-  managerName: string;
-  openingHours: string;
-  mapUrl?: string | null;
-  imageUrl?: string | null;
-  isHeadquarters: boolean;
-  displayOrder: number;
-  status: BranchStatus;
-  createdAt: string;
-}
-
-export interface UpsertBranchDto {
-  name: string;
-  addressLine: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  phone: string;
-  email: string;
-  managerName: string;
-  openingHours: string;
-  mapUrl?: string | null;
-  imageUrl?: string | null;
-  isHeadquarters: boolean;
-  displayOrder: number;
-  status: BranchStatus;
-}
-
 export interface CategoryDto {
   id: string;
   name: string;
@@ -400,24 +202,6 @@ export interface UpsertCategoryDto {
   parentId?: string | null;
   isActive: boolean;
   displayOrder: number;
-}
-
-export interface FaqDto {
-  id: string;
-  question: string;
-  answer: string;
-  category?: string | null;
-  sortOrder: number;
-  isPublished: boolean;
-  createdAt: string;
-}
-
-export interface UpsertFaqDto {
-  question: string;
-  answer: string;
-  category?: string | null;
-  sortOrder: number;
-  isPublished: boolean;
 }
 
 export interface SiteSettingsDto {
@@ -497,4 +281,93 @@ export interface UpsertGalleryItemDto {
   isActive: boolean;
   width?: number | null;
   height?: number | null;
+}
+
+export interface GalleryAlbumImageDto {
+  id: string;
+  imageUrl: string;
+  caption?: string | null;
+  displayOrder: number;
+  isLocationDivider: boolean;
+  locationText?: string | null;
+}
+
+export interface UpsertGalleryAlbumImageDto {
+  imageUrl: string;
+  caption?: string | null;
+  displayOrder: number;
+  isLocationDivider: boolean;
+  locationText?: string | null;
+}
+
+export interface GalleryAlbumDto {
+  id: string;
+  slug: string;
+  title: string;
+  coupleNames: string;
+  coverImageUrl?: string | null;
+  heroImageUrl?: string | null;
+  location?: string | null;
+  eventDate?: string | null;
+  story?: string | null;
+  photographerCredits?: string | null;
+  filmmakerCredits?: string | null;
+  editorCredits?: string | null;
+  categoryId?: string | null;
+  categoryName?: string | null;
+  displayOrder: number;
+  isActive: boolean;
+  images: GalleryAlbumImageDto[];
+  createdAt: string;
+  updatedAt?: string | null;
+}
+
+export interface UpsertGalleryAlbumDto {
+  slug: string;
+  title: string;
+  coupleNames: string;
+  coverImageUrl?: string | null;
+  heroImageUrl?: string | null;
+  location?: string | null;
+  eventDate?: string | null;
+  story?: string | null;
+  photographerCredits?: string | null;
+  filmmakerCredits?: string | null;
+  editorCredits?: string | null;
+  categoryId?: string | null;
+  displayOrder: number;
+  isActive: boolean;
+  images: UpsertGalleryAlbumImageDto[];
+}
+
+export interface AwardDto {
+  id: string;
+  name: string;
+  logoUrl?: string | null;
+  photoUrl?: string | null;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+export interface UpsertAwardDto {
+  name: string;
+  logoUrl?: string | null;
+  photoUrl?: string | null;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+export interface BannerDto {
+  id: string;
+  imageUrl: string;
+  caption?: string | null;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+export interface UpsertBannerDto {
+  imageUrl: string;
+  caption?: string | null;
+  displayOrder: number;
+  isActive: boolean;
 }

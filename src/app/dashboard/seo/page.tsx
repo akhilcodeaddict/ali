@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { api, ApiError } from "@/lib/api";
-import { SeoMetaDto, ProductDto, BlogDto } from "@/lib/types";
+import { SeoMetaDto, ProductDto } from "@/lib/types";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Field } from "@/components/ui/Input";
@@ -16,7 +16,6 @@ import { X } from "lucide-react";
 const STATIC_PAGES: { key: string; label: string }[] = [
   { key: "home", label: "Home" },
   { key: "services", label: "All Services" },
-  { key: "blog", label: "All Blogs" },
   { key: "booking", label: "Booking Page" },
   { key: "contact", label: "Contact" },
   { key: "reviews", label: "Reviews" },
@@ -29,24 +28,21 @@ const emptyForm = { label: "", metaTitle: "", metaDescription: "", metaKeywords:
 
 export default function SeoPage() {
   const toast = useToast();
-  const [tab, setTab] = useState<"static" | "services" | "blog">("static");
+  const [tab, setTab] = useState<"static" | "services">("static");
   const [overrides, setOverrides] = useState<SeoMetaDto[] | null>(null);
   const [services, setServices] = useState<ProductDto[] | null>(null);
-  const [posts, setPosts] = useState<BlogDto[] | null>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
   async function load() {
     try {
-      const [ov, svc, blog] = await Promise.all([
+      const [ov, svc] = await Promise.all([
         api.get<SeoMetaDto[]>("/api/seo"),
         api.get<ProductDto[]>("/api/products/all"),
-        api.get<BlogDto[]>("/api/blog/all"),
       ]);
       setOverrides(ov);
       setServices(svc);
-      setPosts(blog);
     } catch (err) {
       toast.error("Failed to load SEO data", err instanceof ApiError ? err.message : undefined);
     }
@@ -62,11 +58,10 @@ export default function SeoPage() {
 
   const catalog: Catalog = useMemo(() => {
     if (tab === "static") return STATIC_PAGES;
-    if (tab === "services") return (services ?? []).map((s) => ({ key: `service:${s.slug}`, label: s.name }));
-    return (posts ?? []).map((p) => ({ key: `blog:${p.slug}`, label: p.title }));
-  }, [tab, services, posts]);
+    return (services ?? []).map((s) => ({ key: `service:${s.slug}`, label: s.name }));
+  }, [tab, services]);
 
-  const loadingCatalog = tab === "services" ? services === null : tab === "blog" ? posts === null : false;
+  const loadingCatalog = tab === "services" ? services === null : false;
 
   function startEdit(key: string, label: string) {
     const existing = overrideMap.get(key);
@@ -175,12 +170,11 @@ export default function SeoPage() {
               {([
                 { value: "static", label: "Static Pages" },
                 { value: "services", label: "Services" },
-                { value: "blog", label: "Blog Posts" },
               ] as const).map((o) => (
                 <button
                   key={o.value}
                   onClick={() => setTab(o.value)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
                     tab === o.value ? "bg-primary text-white" : "text-text-muted hover:bg-surface-hover"
                   }`}
                 >

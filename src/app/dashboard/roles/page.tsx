@@ -160,7 +160,7 @@ export default function RolesPage() {
         </div>
 
         {formError && (
-          <p className="rounded-md bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{formError}</p>
+          <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{formError}</p>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">

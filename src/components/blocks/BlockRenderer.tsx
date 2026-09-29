@@ -56,7 +56,7 @@ function ButtonBlock({ block }: { block: ContentBlock }) {
   const variantClass =
     variant === "primary"
       ? "bg-primary text-white hover:bg-primary-dark"
-      : "bg-white text-text border border-border hover:bg-section";
+      : "bg-surface text-text border border-border hover:bg-section";
   return (
     <a
       href={url}

@@ -2,7 +2,7 @@ import { InputHTMLAttributes, TextareaHTMLAttributes, forwardRef } from "react";
 import clsx from "clsx";
 
 const baseField =
-  "w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-helper shadow-[0_1px_1px_rgba(0,0,0,0.03)] transition-shadow duration-150 focus:outline-none focus:border-primary focus:shadow-[var(--shadow-focus)]";
+  "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-helper shadow-[0_1px_1px_rgba(0,0,0,0.03)] transition-shadow duration-150 focus:outline-none focus:border-primary focus:shadow-[var(--shadow-focus)]";
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (

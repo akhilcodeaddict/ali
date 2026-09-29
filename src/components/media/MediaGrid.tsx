@@ -34,7 +34,7 @@ export function MediaGrid({
           type="button"
           onClick={() => onSelect(file)}
           className={clsx(
-            "group overflow-hidden rounded-lg border bg-white text-left transition-all cursor-pointer",
+            "group overflow-hidden rounded-lg border bg-surface text-left transition-all cursor-pointer",
             selectedId === file.id
               ? "border-primary shadow-[var(--shadow-focus)]"
               : "border-border hover:border-border hover:shadow-[var(--shadow-card)]"

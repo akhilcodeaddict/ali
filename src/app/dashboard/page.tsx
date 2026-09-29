@@ -6,12 +6,10 @@ import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
 import { PageListItem } from "@/lib/page-types";
 import {
-  BlogDto,
   BookingDto,
   BookingStatus,
   ContactMessageDto,
   TestimonialDto,
-  NewsDto,
   ProductDto,
   GalleryItemDto,
   TrafficSummaryDto,
@@ -30,7 +28,6 @@ import {
   MoreHorizontal,
   Plus,
   ChevronRight,
-  Newspaper,
   UploadCloud,
   Package,
   UserPlus,
@@ -49,13 +46,11 @@ import {
 
 interface Stats {
   pages: PageListItem[] | null;
-  blogs: BlogDto[] | null;
   media: MediaFile[] | null;
   activity: AuditLogPage | null;
   bookings: BookingDto[] | null;
   contactMessages: ContactMessageDto[] | null;
   testimonials: TestimonialDto[] | null;
-  news: NewsDto[] | null;
   products: ProductDto[] | null;
   gallery: GalleryItemDto[] | null;
   traffic: TrafficSummaryDto | null;
@@ -181,7 +176,7 @@ function StatCard({
   const body = (
     <div className="flex h-full flex-col rounded-lg border border-border bg-surface p-4 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]">
       <div className="flex items-start justify-between gap-2">
-        <div className={clsx("flex h-9 w-9 items-center justify-center rounded-md", iconClass)}>
+        <div className={clsx("flex h-9 w-9 items-center justify-center rounded-lg", iconClass)}>
           <Icon size={17} strokeWidth={1.75} />
         </div>
       </div>
@@ -236,7 +231,7 @@ function KanbanCard({ page }: { page: PageListItem }) {
   return (
     <Link
       href={`/dashboard/pages/${page.id}`}
-      className="group block rounded-md border border-border bg-surface p-3 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]"
+      className="group block rounded-lg border border-border bg-surface p-3 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]"
     >
       <div className="flex items-start justify-between gap-2">
         <p className="truncate text-[13px] font-semibold text-heading">{page.title}</p>
@@ -261,13 +256,11 @@ export default function DashboardHomePage() {
   const { name, can } = useAuth();
   const [stats, setStats] = useState<Stats>({
     pages: null,
-    blogs: null,
     media: null,
     activity: null,
     bookings: null,
     contactMessages: null,
     testimonials: null,
-    news: null,
     products: null,
     gallery: null,
     traffic: null,
@@ -277,26 +270,22 @@ export default function DashboardHomePage() {
     const reject = () => Promise.reject(new Error("skipped"));
     Promise.allSettled([
       api.get<PageListItem[]>("/api/pages"),
-      api.get<BlogDto[]>("/api/blog/all"),
       api.get<MediaFile[]>("/api/media"),
       can("audit.view") ? api.get<AuditLogPage>("/api/audit-logs?pageSize=5") : reject(),
       api.get<BookingDto[]>("/api/bookings"),
       can("contact.view") ? api.get<ContactMessageDto[]>("/api/contact/messages") : reject(),
       can("testimonials.view") ? api.get<TestimonialDto[]>("/api/testimonials/all") : reject(),
-      can("news.view") ? api.get<NewsDto[]>("/api/news/all") : reject(),
       can("products.view") ? api.get<ProductDto[]>("/api/products/all") : reject(),
       can("gallery.view") ? api.get<GalleryItemDto[]>("/api/gallery/all") : reject(),
       api.get<TrafficSummaryDto>("/api/analytics/summary?days=30"),
-    ]).then(([pages, blogs, media, activity, bookings, contactMessages, testimonials, news, products, gallery, traffic]) => {
+    ]).then(([pages, media, activity, bookings, contactMessages, testimonials, products, gallery, traffic]) => {
       setStats({
         pages: pages.status === "fulfilled" ? pages.value : [],
-        blogs: blogs.status === "fulfilled" ? blogs.value : [],
         media: media.status === "fulfilled" ? media.value : [],
         activity: activity.status === "fulfilled" ? activity.value : null,
         bookings: bookings.status === "fulfilled" ? bookings.value : [],
         contactMessages: contactMessages.status === "fulfilled" ? contactMessages.value : null,
         testimonials: testimonials.status === "fulfilled" ? testimonials.value : null,
-        news: news.status === "fulfilled" ? news.value : null,
         products: products.status === "fulfilled" ? products.value : null,
         gallery: gallery.status === "fulfilled" ? gallery.value : null,
         traffic: traffic.status === "fulfilled" ? traffic.value : null,
@@ -313,7 +302,6 @@ export default function DashboardHomePage() {
   const draftPages = pages.filter((p) => p.status === "Draft");
   const reviewPages = pages.filter((p) => p.status === "Review");
   const scheduledPages = pages.filter((p) => p.status === "Scheduled");
-  const draftBlogs = (stats.blogs ?? []).filter((b) => !b.isPublished);
 
   const today = new Date().toDateString();
   const createdToday = pages.filter((p) => new Date(p.createdAt).toDateString() === today).length;
@@ -346,11 +334,10 @@ export default function DashboardHomePage() {
 
   const quickActions = [
     { label: "New Page", icon: Plus, href: "/dashboard/pages" },
-    { label: "Create Blog Post", icon: Newspaper, href: "/dashboard/blog/new" },
     { label: "Upload Media", icon: UploadCloud, href: "/dashboard/media" },
     { label: "Create Product", icon: Package, href: "/dashboard/products" },
     { label: "Add New User", icon: UserPlus, href: "/dashboard/users" },
-    { label: "Add Menu Item", icon: ListPlus, href: "/dashboard/menu" },
+    { label: "Add Gallery Item", icon: ListPlus, href: "/dashboard/gallery" },
     { label: "Create Banner", icon: ImagePlus, href: "/dashboard/hero" },
     { label: "Publish Site", icon: Globe, soon: true },
   ];
@@ -362,7 +349,6 @@ export default function DashboardHomePage() {
   const averageRating = approvedTestimonials.length > 0
     ? approvedTestimonials.reduce((sum, t) => sum + t.rating, 0) / approvedTestimonials.length
     : null;
-  const publishedNews = (stats.news ?? []).filter((n) => n.isPublished).length;
   const activeProducts = (stats.products ?? []).filter((p) => p.isActive).length;
   const activeGalleryItems = (stats.gallery ?? []).filter((g) => g.isActive).length;
 
@@ -399,8 +385,8 @@ export default function DashboardHomePage() {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 2xl:grid-cols-7">
         <StatCard
           label="Draft Content"
-          value={stats.pages ? String(draftPages.length + draftBlogs.length) : "—"}
-          hint={createdToday > 0 ? `↑ ${createdToday} today` : "Across pages & blog"}
+          value={stats.pages ? String(draftPages.length) : "—"}
+          hint={createdToday > 0 ? `↑ ${createdToday} today` : "Across pages"}
           hintTone={createdToday > 0 ? "up" : "neutral"}
           icon={FileText}
           iconClass="bg-blue-50 text-blue-600"
@@ -470,11 +456,11 @@ export default function DashboardHomePage() {
         <StatCard
           label="Published Content"
           value={
-            stats.news && stats.products && stats.gallery
-              ? String(publishedNews + activeProducts + activeGalleryItems)
+            stats.products && stats.gallery
+              ? String(activeProducts + activeGalleryItems)
               : "—"
           }
-          hint="News + products + gallery, live on site"
+          hint="Products + gallery, live on site"
           icon={Images}
           iconClass="bg-emerald-50 text-emerald-600"
           href="/dashboard/products"
@@ -491,7 +477,7 @@ export default function DashboardHomePage() {
               <p className="py-4 text-sm text-text-muted">You&apos;re all caught up. 🎉</p>
             )}
             {myWork.map((task, i) => (
-              <div key={i} className="flex items-start gap-2.5 rounded-md px-1.5 py-2 hover:bg-section">
+              <div key={i} className="flex items-start gap-2.5 rounded-lg px-1.5 py-2 hover:bg-section">
                 <CheckCircle2 size={17} strokeWidth={1.75} className="mt-0.5 shrink-0 text-primary" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[13px] font-semibold text-text">{task.title}</p>
@@ -522,7 +508,7 @@ export default function DashboardHomePage() {
             {KANBAN_COLUMNS.map((col) => {
               const items = pages.filter((p) => p.status === col.status);
               return (
-                <div key={col.status} className={clsx("flex flex-col gap-2 rounded-md p-2.5", col.tint)}>
+                <div key={col.status} className={clsx("flex flex-col gap-2 rounded-lg p-2.5", col.tint)}>
                   <div className="flex items-center justify-between px-0.5">
                     <span className="text-xs font-bold text-heading">{col.label}</span>
                     <span className={clsx("rounded-full px-1.5 py-px text-[10px] font-bold", col.chip)}>
@@ -534,7 +520,7 @@ export default function DashboardHomePage() {
                   ))}
                   <Link
                     href="/dashboard/pages"
-                    className="rounded-md px-2 py-1.5 text-center text-xs font-semibold text-text-helper transition-colors hover:bg-surface hover:text-text"
+                    className="rounded-lg px-2 py-1.5 text-center text-xs font-semibold text-text-helper transition-colors hover:bg-surface hover:text-text"
                   >
                     + Add
                   </Link>
@@ -551,7 +537,7 @@ export default function DashboardHomePage() {
               {quickActions.map((a) => {
                 const inner = (
                   <>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-section text-text-muted">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-section text-text-muted">
                       <a.icon size={14} strokeWidth={1.75} />
                     </span>
                     <span className="flex-1 text-[13px] font-semibold">{a.label}</span>
@@ -567,7 +553,7 @@ export default function DashboardHomePage() {
                 return a.soon ? (
                   <span
                     key={a.label}
-                    className="flex cursor-default items-center gap-2.5 rounded-md border border-border px-2.5 py-2 text-text-helper"
+                    className="flex cursor-default items-center gap-2.5 rounded-lg border border-border px-2.5 py-2 text-text-helper"
                   >
                     {inner}
                   </span>
@@ -575,7 +561,7 @@ export default function DashboardHomePage() {
                   <Link
                     key={a.label}
                     href={a.href!}
-                    className="flex items-center gap-2.5 rounded-md border border-border px-2.5 py-2 text-text transition-colors hover:border-primary/40 hover:bg-primary-light/40"
+                    className="flex items-center gap-2.5 rounded-lg border border-border px-2.5 py-2 text-text transition-colors hover:border-primary/40 hover:bg-primary-light/40"
                   >
                     {inner}
                   </Link>
@@ -642,7 +628,7 @@ export default function DashboardHomePage() {
             {stats.activity?.items.map((log) => {
               const who = log.userEmail?.split("@")[0] ?? "system";
               return (
-                <div key={log.id} className="flex items-center gap-3 rounded-md px-1.5 py-2 hover:bg-section">
+                <div key={log.id} className="flex items-center gap-3 rounded-lg px-1.5 py-2 hover:bg-section">
                   <span
                     className={clsx(
                       "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white",
@@ -698,8 +684,8 @@ export default function DashboardHomePage() {
               <p className="py-4 text-sm text-text-muted">No uploads yet.</p>
             )}
             {recentUploads.map((f) => (
-              <Link key={f.id} href="/dashboard/media" className="flex items-center gap-3 rounded-md px-1.5 py-1.5 hover:bg-section">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-section">
+              <Link key={f.id} href="/dashboard/media" className="flex items-center gap-3 rounded-lg px-1.5 py-1.5 hover:bg-section">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-section">
                   {f.thumbnailUrl || f.originalUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img

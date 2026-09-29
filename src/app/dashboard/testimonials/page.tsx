@@ -19,6 +19,7 @@ import { Plus, Pencil, Trash2, X, Check, Mail, UploadCloud, Copy, CopyCheck } fr
 const empty: UpsertTestimonialDto = {
   name: "",
   designation: "",
+  headline: "",
   message: "",
   photoUrl: "",
   rating: 5,
@@ -63,7 +64,7 @@ function ExtraImagesField({ value, onChange }: { value: string[]; onChange: (url
       {value.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {value.map((url) => (
-            <div key={url} className="group relative h-16 w-16 overflow-hidden rounded-md border border-border">
+            <div key={url} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-border">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt="" className="h-full w-full object-cover" />
               <button
@@ -77,7 +78,7 @@ function ExtraImagesField({ value, onChange }: { value: string[]; onChange: (url
           ))}
         </div>
       )}
-      <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-1.5 text-[13px] font-medium text-text transition-colors hover:bg-section">
+      <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-[13px] font-medium text-text transition-colors hover:bg-section">
         <UploadCloud size={14} strokeWidth={1.75} />
         {uploading ? "Uploading..." : "Upload images"}
         <input
@@ -139,6 +140,7 @@ export default function TestimonialsPage() {
     setForm({
       name: t.name,
       designation: t.designation,
+      headline: t.headline ?? "",
       message: t.message,
       photoUrl: t.photoUrl ?? "",
       rating: t.rating,
@@ -166,8 +168,9 @@ export default function TestimonialsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      if (editingId) await api.put(`/api/testimonials/${editingId}`, form);
-      else await api.post("/api/testimonials", form);
+      const payload = { ...form, headline: form.headline || null };
+      if (editingId) await api.put(`/api/testimonials/${editingId}`, payload);
+      else await api.post("/api/testimonials", payload);
       toast.success(editingId ? "Testimonial updated" : "Testimonial added");
       setFormOpen(false);
       resetForm();
@@ -269,7 +272,7 @@ export default function TestimonialsPage() {
           </form>
 
           {requestLink && (
-            <div className="mt-4 flex items-center gap-2 rounded-md border border-border bg-section px-3 py-2.5">
+            <div className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-section px-3 py-2.5">
               <span className="min-w-0 flex-1 truncate text-[13px] text-text-muted">{requestLink}</span>
               <Button variant="secondary" size="sm" onClick={copyRequestLink}>
                 {linkCopied ? (
@@ -308,6 +311,12 @@ export default function TestimonialsPage() {
                   required
                 />
               </Field>
+              <Field label="Headline" helper="Optional short highlight shown with the quote">
+                <Input
+                  value={form.headline ?? ""}
+                  onChange={(e) => setForm({ ...form, headline: e.target.value })}
+                />
+              </Field>
               <Field label="Rating (1-5)">
                 <Input
                   type="number"
@@ -337,7 +346,7 @@ export default function TestimonialsPage() {
                   return (
                     <label
                       key={s.id}
-                      className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-[13px] transition-colors ${
+                      className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-[13px] transition-colors ${
                         checked ? "border-primary bg-primary-light/40 text-text" : "border-border text-text-muted hover:border-primary/40"
                       }`}
                     >
@@ -390,7 +399,7 @@ export default function TestimonialsPage() {
                   <button
                     key={f}
                     onClick={() => setFilter(f)}
-                    className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
+                    className={`rounded-lg px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
                       filter === f ? "bg-primary text-white" : "text-text-muted hover:bg-surface-hover"
                     }`}
                   >

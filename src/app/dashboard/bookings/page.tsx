@@ -7,7 +7,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
-import { Trash2, RefreshCw, MessageSquareText, Mail, Copy } from "lucide-react";
+import { Trash2, RefreshCw, MessageSquareText, Mail, Copy, Download } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/lib/toast-context";
 
@@ -74,6 +74,30 @@ export default function BookingsPage() {
     }
   }
 
+  function exportToExcel() {
+    if (!items) return;
+    const header = ["Name", "Email", "Phone", "Services", "Preferred Date", "Preferred Time", "Status", "Notes", "Received"];
+    const rows = items.map((b) => [
+      b.name,
+      b.email,
+      b.phone,
+      b.serviceNames.join("; "),
+      new Date(b.preferredDate).toLocaleDateString("en-IN"),
+      b.preferredTime ?? "",
+      b.status,
+      b.notes ?? "",
+      new Date(b.createdAt).toLocaleDateString("en-IN"),
+    ]);
+    const csv = [header, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bookings-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   const pending = items?.filter((b) => b.status === "Pending").length ?? 0;
 
   return (
@@ -85,9 +109,14 @@ export default function BookingsPage() {
             Appointment requests from the website{pending > 0 && ` — ${pending} pending`}.
           </p>
         </div>
-        <Button variant="secondary" onClick={load}>
-          <RefreshCw size={15} /> Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={exportToExcel} disabled={!items || items.length === 0}>
+            <Download size={15} /> Export CSV
+          </Button>
+          <Button variant="secondary" onClick={load}>
+            <RefreshCw size={15} /> Refresh
+          </Button>
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -123,7 +152,7 @@ export default function BookingsPage() {
                       <select
                         value={b.status}
                         onChange={(e) => updateStatus(b.id, e.target.value as BookingStatus)}
-                        className="rounded-md border border-border bg-white px-1.5 py-1 text-xs text-text focus:border-primary focus:outline-none"
+                        className="rounded-lg border border-border bg-surface px-1.5 py-1 text-xs text-text focus:border-primary focus:outline-none"
                       >
                         {STATUSES.map((s) => (
                           <option key={s} value={s}>{s}</option>
@@ -149,7 +178,7 @@ export default function BookingsPage() {
                             Review
                           </Button>
                           {reviewMenuFor === b.id && (
-                            <div className="absolute right-0 z-10 mt-1 w-48 rounded-lg border border-border bg-white py-1 shadow-lg">
+                            <div className="absolute right-0 z-10 mt-1 w-48 rounded-lg border border-border bg-surface py-1 shadow-lg">
                               <button
                                 onClick={() => sendReviewEmail(b.id)}
                                 disabled={sendingReviewFor === b.id}
@@ -169,7 +198,7 @@ export default function BookingsPage() {
                       )}
                       <button
                         onClick={() => handleDelete(b.id)}
-                        className="rounded-md p-1.5 text-text-muted transition-colors hover:bg-status-danger-bg hover:text-status-danger-text"
+                        className="rounded-lg p-1.5 text-text-muted transition-colors hover:bg-status-danger-bg hover:text-status-danger-text"
                         aria-label="Delete booking"
                       >
                         <Trash2 size={15} />

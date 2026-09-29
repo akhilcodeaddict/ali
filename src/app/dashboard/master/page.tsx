@@ -14,18 +14,15 @@ import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui
 import { Pencil, Trash2, X, Plus } from "lucide-react";
 
 const MODULES = [
-  { key: "news", label: "News" },
-  { key: "blog", label: "Blog" },
-  { key: "documents", label: "Documents" },
   { key: "products", label: "Products" },
-  { key: "faqs", label: "FAQs" },
   { key: "media", label: "Uploads" },
   { key: "gallery", label: "Gallery" },
+  { key: "gallery-albums", label: "Gallery Albums" },
 ];
 
 const emptyForm = {
   name: "",
-  module: "news",
+  module: "products",
   description: "",
   parentId: "" as string,
   isActive: true,
@@ -33,10 +30,10 @@ const emptyForm = {
 };
 
 export default function MasterCategoriesPage() {
-  const [activeTab, setActiveTab] = useState("news");
+  const [activeTab, setActiveTab] = useState("products");
   const [allCategories, setAllCategories] = useState<CategoryDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState({ ...emptyForm, module: "news" });
+  const [form, setForm] = useState({ ...emptyForm, module: "products" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState<ActiveFilterValue>("active");
@@ -112,12 +109,12 @@ export default function MasterCategoriesPage() {
       <div>
         <h1 className="text-[28px] font-bold text-heading">Master Data</h1>
         <p className="mt-1 text-sm text-text-muted">
-          Manage categories used across modules — news, blog, products, and more.
+          Manage categories used across modules — products, gallery, and more.
         </p>
       </div>
 
       {error && (
-        <p className="rounded-md bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>
+        <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>
       )}
 
       {/* Module tabs */}
@@ -178,7 +175,7 @@ export default function MasterCategoriesPage() {
                   <select
                     value={form.parentId}
                     onChange={(e) => setForm({ ...form, parentId: e.target.value })}
-                    className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
                   >
                     <option value="">— None (top-level) —</option>
                     {parentOptions.filter((p) => p.id !== editingId).map((p) => (

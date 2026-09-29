@@ -74,7 +74,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           return (
             <div
               key={t.id}
-              className="pointer-events-auto w-[340px] overflow-hidden rounded-lg border border-border bg-white shadow-[0_8px_24px_rgba(15,23,42,0.12)] animate-toast-in"
+              className="pointer-events-auto w-[340px] overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-card-hover)] animate-toast-in"
               role="alert"
             >
               {/* Progress bar */}

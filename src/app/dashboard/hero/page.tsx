@@ -148,7 +148,7 @@ export default function HeroPage() {
           ) : (
             <div className="animate-pulse flex flex-col gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-8 rounded-md bg-border/70" />
+                <div key={i} className="h-8 rounded-lg bg-border/70" />
               ))}
             </div>
           )}

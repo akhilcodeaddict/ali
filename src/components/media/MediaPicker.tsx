@@ -53,7 +53,7 @@ export function MediaPicker({
   return (
     <>
       <div className="fixed inset-0 z-[60] bg-black/25" onClick={onClose} />
-      <div className="fixed left-1/2 top-1/2 z-[70] flex max-h-[80vh] w-[760px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg border border-border bg-white shadow-[var(--shadow-card-hover)]">
+      <div className="fixed left-1/2 top-1/2 z-[70] flex max-h-[80vh] w-[760px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg border border-border bg-surface shadow-[var(--shadow-card-hover)]">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="text-[17px] font-bold text-text">Choose image</h2>
           <div className="flex items-center gap-2">

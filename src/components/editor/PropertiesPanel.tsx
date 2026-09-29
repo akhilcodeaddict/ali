@@ -40,7 +40,7 @@ function PropInput({
             const opt = field.options?.find((o) => String(o.value) === e.target.value);
             onChange(opt ? opt.value : e.target.value);
           }}
-          className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:outline-none focus:border-primary focus:shadow-[var(--shadow-focus)]"
+          className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:border-primary focus:shadow-[var(--shadow-focus)]"
         >
           {field.options?.map((opt) => (
             <option key={String(opt.value)} value={String(opt.value)}>
@@ -56,7 +56,7 @@ function PropInput({
             type="color"
             value={value || "#000000"}
             onChange={(e) => onChange(e.target.value)}
-            className="h-9 w-10 cursor-pointer rounded-md border border-border bg-white p-1"
+            className="h-9 w-10 cursor-pointer rounded-lg border border-border bg-surface p-1"
           />
           <Input
             value={value ?? ""}

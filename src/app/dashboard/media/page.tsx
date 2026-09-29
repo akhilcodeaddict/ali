@@ -132,7 +132,7 @@ export default function MediaLibraryPage() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="rounded-md border border-border bg-white px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
           >
             <option value="">All categories</option>
             {categories.map((c) => (
@@ -180,7 +180,7 @@ export default function MediaLibraryPage() {
               <img
                 src={mediaUrl(selected.mediumUrl ?? selected.originalUrl)}
                 alt={selected.altText}
-                className="w-full rounded-md border border-border"
+                className="w-full rounded-lg border border-border"
               />
 
               <div className="text-[13px] text-text-muted">

@@ -136,7 +136,7 @@ export default function CachePage() {
           ].map((s) => (
             <div
               key={s.label}
-              className="rounded-[10px] border border-border bg-white p-4 shadow-[var(--shadow-card)]"
+              className="rounded-[10px] border border-border bg-surface p-4 shadow-[var(--shadow-card)]"
             >
               <p className="text-[12px] font-medium text-text-muted">{s.label}</p>
               <p className="mt-1 text-[22px] font-bold text-heading">{s.value}</p>

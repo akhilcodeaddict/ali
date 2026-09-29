@@ -11,21 +11,14 @@ import { ToastProvider } from "@/lib/toast-context";
 import Image from "next/image";
 import {
   FileText,
-  Newspaper,
-  Users,
-  Building2,
   Quote,
-  Briefcase,
   Image as ImageIcon,
   Images,
   ShieldCheck,
   UserCog,
   ScrollText,
   LayoutDashboard,
-  Megaphone,
-  FileStack,
   Package,
-  MapPin,
   ListTodo,
   CheckSquare,
   CalendarClock,
@@ -35,14 +28,13 @@ import {
   Inbox,
   Settings,
   Database,
-  HelpCircle,
-  Navigation,
-  LayoutTemplate,
   HardDrive,
   Mail,
   ClipboardList,
   GalleryHorizontal,
   Search,
+  Award,
+  GalleryVerticalEnd,
 } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -72,21 +64,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       title: "Content",
       items: [
         ...(view("pages") ? [{ href: "/dashboard/pages", label: "Pages", icon: FileText }] : []),
-        ...(view("blog") ? [{ href: "/dashboard/blog", label: "Blog", icon: Newspaper }] : []),
-        ...(view("news") ? [{ href: "/dashboard/news", label: "News", icon: Megaphone }] : []),
         ...(view("hero") ? [{ href: "/dashboard/hero", label: "Hero", icon: ImageIcon }] : []),
+        ...(view("banners") ? [{ href: "/dashboard/banners", label: "Banners", icon: GalleryVerticalEnd }] : []),
         ...(view("media") ? [{ href: "/dashboard/media", label: "Media", icon: Images }] : []),
-        ...(view("documents") ? [{ href: "/dashboard/documents", label: "Documents", icon: FileStack }] : []),
         ...(view("products") ? [{ href: "/dashboard/products", label: "Products", icon: Package }] : []),
-        ...(view("branches") ? [{ href: "/dashboard/branches", label: "Branches", icon: MapPin }] : []),
         ...(view("testimonials")
           ? [{ href: "/dashboard/testimonials", label: "Testimonials", icon: Quote }]
           : []),
-        ...(view("team") ? [{ href: "/dashboard/team", label: "Team", icon: Users }] : []),
-        ...(view("clients") ? [{ href: "/dashboard/clients", label: "Clients", icon: Building2 }] : []),
-        ...(view("careers") ? [{ href: "/dashboard/careers", label: "Careers", icon: Briefcase }] : []),
-        ...(view("faqs") ? [{ href: "/dashboard/faqs", label: "FAQs", icon: HelpCircle }] : []),
         ...(view("gallery") ? [{ href: "/dashboard/gallery", label: "Gallery", icon: GalleryHorizontal }] : []),
+        ...(view("gallery-albums")
+          ? [{ href: "/dashboard/gallery-albums", label: "Gallery Albums", icon: Images }]
+          : []),
+        ...(view("awards") ? [{ href: "/dashboard/awards", label: "Awards", icon: Award }] : []),
         ...(can("seo.view") ? [{ href: "/dashboard/seo", label: "SEO", icon: Search }] : []),
       ],
     },
@@ -94,8 +83,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       title: "Master Data",
       items: [
         ...(can("categories.view") ? [{ href: "/dashboard/master", label: "Categories", icon: Database }] : []),
-        ...(can("menu.view") ? [{ href: "/dashboard/menu", label: "Menu Manager", icon: Navigation }] : []),
-        ...(can("footer.view") ? [{ href: "/dashboard/footer", label: "Footer Manager", icon: LayoutTemplate }] : []),
       ],
     },
     {
@@ -140,7 +127,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     },
   ];
 
-  const sections = rawSections.filter((s) => s.items.length > 0);
+  const sections = rawSections
+    .map((s) => ({ ...s, items: s.items.filter((i) => !(i as any).soon) }))
+    .filter((s) => s.items.length > 0);
 
   const initials = (name || email || "?")
     .split(" ")
@@ -154,46 +143,52 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <ToastProvider>
     <LoadingBar />
     <div className="min-h-screen bg-section">
+
+      {/* ── Sidebar ── */}
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-40 flex w-[240px] flex-col bg-gradient-to-b from-[#150c2e] to-[#1b0f3a] transition-transform duration-200",
+          "fixed inset-y-0 left-0 z-40 flex w-[230px] flex-col border-r border-border bg-surface shadow-[1px_0_0_0_var(--color-border)] transition-transform duration-200",
           !sidebarOpen && "-translate-x-full"
         )}
       >
-        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-white/10 px-5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-            <Image src="/logo-icon.png" alt="గణన యంత్రం (Ganana Yantramu)" width={40} height={40} priority />
+        {/* Logo */}
+        <div className="flex h-[60px] shrink-0 items-center gap-3 border-b border-border px-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-sm">
+            <Image src="/ali-logo.png" alt="ALI" width={22} height={28} className="h-6 w-auto object-contain brightness-0 invert" priority />
           </div>
-          <div className="leading-tight">
-            <p className="text-[15px] font-bold text-white">గణన యంత్రం (Ganana Yantramu)</p>
-            <p className="text-[11px] font-medium text-white/40">CMS Website Builder</p>
+          <div className="leading-none">
+            <p className="text-[15px] font-bold text-heading" style={{ fontFamily: "var(--font-arimo)", letterSpacing: "0.03em" }}>ALI</p>
+            <p className="text-[10px] font-medium text-text-helper" style={{ fontFamily: "var(--font-arimo)", letterSpacing: "0.18em", marginTop: 1 }}>CMS Studio</p>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 py-4">
+        {/* Nav */}
+        <div className="flex-1 overflow-y-auto px-2 py-3">
           <SideNav sections={sections} />
         </div>
 
-        <div className="flex shrink-0 items-center gap-2.5 border-t border-white/10 px-4 py-3.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-xs font-bold text-white">
+        {/* User footer */}
+        <div className="flex shrink-0 items-center gap-2.5 border-t border-border bg-section px-4 py-3">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
             {initials}
           </span>
           <div className="min-w-0 leading-tight">
-            <p className="truncate text-[13px] font-semibold text-white">{name || "Admin"}</p>
-            <p className="truncate text-[11px] text-white/40">{roleLabel}</p>
+            <p className="truncate text-[13px] font-semibold text-heading">{name || "Admin"}</p>
+            <p className="truncate text-[11px] text-text-helper">{roleLabel}</p>
           </div>
         </div>
       </aside>
 
+      {/* ── Main area ── */}
       <div
         className={clsx(
           "flex min-h-screen flex-col transition-[margin] duration-200",
-          sidebarOpen ? "ml-[240px]" : "ml-0"
+          sidebarOpen ? "ml-[230px]" : "ml-0"
         )}
       >
         <TopBar onToggleSidebar={() => setSidebarOpen((v) => !v)} />
         <main className="flex-1">
-          <div className="mx-auto max-w-[1560px] px-6 py-7">{children}</div>
+          <div className="mx-auto max-w-[1560px] px-6 py-6">{children}</div>
         </main>
       </div>
     </div>

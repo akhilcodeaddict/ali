@@ -209,7 +209,7 @@ export default function UsersPage() {
       {formOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setFormOpen(false)} />
-          <div className="fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[480px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white shadow-[var(--shadow-card-hover)]">
+          <div className="fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[480px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-surface shadow-[var(--shadow-card-hover)]">
             <form onSubmit={handleSubmit}>
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <h2 className="text-[17px] font-bold text-text">
@@ -266,7 +266,7 @@ export default function UsersPage() {
                     <select
                       value={form.status}
                       onChange={(e) => setForm({ ...form, status: e.target.value as UserStatus })}
-                      className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm"
+                      className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                     >
                       <option value="Active">Active</option>
                       <option value="Suspended">Suspended</option>
@@ -276,7 +276,7 @@ export default function UsersPage() {
                 )}
 
                 <Field label="Roles">
-                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
+                  <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
                     {roles.map((role) => (
                       <label key={role.id} className="flex items-center gap-2 text-sm cursor-pointer">
                         <input
@@ -295,7 +295,7 @@ export default function UsersPage() {
                 </Field>
 
                 {formError && (
-                  <p className="rounded-md bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{formError}</p>
+                  <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{formError}</p>
                 )}
               </div>
 

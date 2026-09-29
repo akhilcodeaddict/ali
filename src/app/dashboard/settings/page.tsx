@@ -80,7 +80,7 @@ export default function SettingsPage() {
 
   if (loading) return (
     <div className="flex flex-col gap-6">
-      <div><div className="h-8 w-48 animate-pulse rounded-md bg-border/70" /></div>
+      <div><div className="h-8 w-48 animate-pulse rounded-lg bg-border/70" /></div>
       <SkeletonCard /><SkeletonCard /><SkeletonCard />
     </div>
   );
@@ -97,8 +97,8 @@ export default function SettingsPage() {
         </Button>
       </div>
 
-      {error && <p className="rounded-md bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>}
-      {success && <p className="rounded-md bg-status-success-bg px-3 py-2 text-sm text-status-success-text">Settings saved successfully.</p>}
+      {error && <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>}
+      {success && <p className="rounded-lg bg-status-success-bg px-3 py-2 text-sm text-status-success-text">Settings saved successfully.</p>}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 

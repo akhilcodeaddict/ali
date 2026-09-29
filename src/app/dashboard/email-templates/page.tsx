@@ -131,7 +131,7 @@ export default function EmailTemplatesPage() {
                 type="text"
                 value={editing.subject}
                 onChange={(e) => setEditing({ ...editing, subject: e.target.value })}
-                className="h-9 w-full rounded-md border border-border bg-white px-3 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
+                className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
               />
             </div>
 
@@ -151,11 +151,11 @@ export default function EmailTemplatesPage() {
                 rows={12}
                 value={editing.htmlBody}
                 onChange={(e) => setEditing({ ...editing, htmlBody: e.target.value })}
-                className="w-full rounded-md border border-border bg-white px-3 py-2 font-mono text-xs text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)] resize-y"
+                className="w-full rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)] resize-y"
               />
               {preview && (
                 <div
-                  className="mt-2 rounded-md border border-border bg-white p-4 text-sm prose prose-sm max-w-none"
+                  className="mt-2 rounded-lg border border-border bg-surface p-4 text-sm prose prose-sm max-w-none"
                   dangerouslySetInnerHTML={{ __html: editing.htmlBody }}
                 />
               )}

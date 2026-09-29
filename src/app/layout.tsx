@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Orbitron } from "next/font/google";
+import { Inter, Orbitron, Rajdhani, Arimo } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { ThemeProvider, themeInitScript } from "@/lib/theme-context";
@@ -15,9 +15,26 @@ const orbitron = Orbitron({
   weight: ["700", "800", "900"],
 });
 
+const rajdhani = Rajdhani({
+  variable: "--font-rajdhani",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
+const arimo = Arimo({
+  variable: "--font-arimo",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "గణన యంత్రం (Ganana Yantramu) — CMS Website Builder",
-  description: "Content management dashboard for గణన యంత్రం (Ganana Yantramu)",
+  title: "ALI CMS Studio",
+  description: "Adaptive Layout Interface — Content management dashboard for Blossm Weddings",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +43,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${orbitron.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${orbitron.variable} ${rajdhani.variable} ${arimo.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>

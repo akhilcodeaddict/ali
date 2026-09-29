@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Gold circle arc -->
+  <circle cx="32" cy="36" r="18" fill="none" stroke="#c9a84c" stroke-width="3" stroke-dasharray="90 23" stroke-linecap="round" transform="rotate(-20 32 36)"/>
+  <!-- Eagle body (navy) -->
+  <path d="M32 20 C28 24 22 28 18 30 C22 29 26 31 32 38 C38 31 42 29 46 30 C42 28 36 24 32 20Z" fill="#1a3a5c"/>
+  <!-- Left wing -->
+  <path d="M32 26 C26 22 18 22 14 26 C18 25 24 27 32 34Z" fill="#1a3a5c" opacity="0.85"/>
+  <!-- Right wing -->
+  <path d="M32 26 C38 22 46 22 50 26 C46 25 40 27 32 34Z" fill="#1a3a5c" opacity="0.85"/>
+  <!-- Eagle head -->
+  <ellipse cx="32" cy="21" rx="3.5" ry="4" fill="#1a3a5c"/>
+  <!-- Red star at top -->
+  <path d="M32 10 L33.2 13.6 L37 13.6 L34.1 15.8 L35.2 19.4 L32 17.2 L28.8 19.4 L29.9 15.8 L27 13.6 L30.8 13.6 Z" fill="#c0392b"/>
+  <!-- ALI text below -->
+  <text x="32" y="57" font-family="serif" font-size="12" font-weight="900" fill="#1a3a5c" text-anchor="middle" letter-spacing="3">ALI</text>
+</svg>

@@ -250,33 +250,33 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
     }
   }
 
-  if (error && !page) return <p className="rounded-md bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>;
+  if (error && !page) return <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>;
   if (!page || !settings) return (
     <div className="fixed inset-y-0 left-[232px] right-0 z-30 flex flex-col bg-section animate-pulse">
-      <div className="flex items-center gap-4 border-b border-border bg-white px-5 py-3">
-        <div className="h-8 w-8 rounded-md bg-border/70" />
-        <div className="h-5 w-40 rounded-md bg-border/70" />
+      <div className="flex items-center gap-4 border-b border-border bg-surface px-5 py-3">
+        <div className="h-8 w-8 rounded-lg bg-border/70" />
+        <div className="h-5 w-40 rounded-lg bg-border/70" />
         <div className="ml-auto flex gap-2">
-          <div className="h-8 w-20 rounded-md bg-border/70" />
-          <div className="h-8 w-24 rounded-md bg-border/70" />
+          <div className="h-8 w-20 rounded-lg bg-border/70" />
+          <div className="h-8 w-24 rounded-lg bg-border/70" />
         </div>
       </div>
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-56 border-r border-border bg-white p-3 flex flex-col gap-2">
+        <div className="w-56 border-r border-border bg-surface p-3 flex flex-col gap-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-10 rounded-md bg-border/70" />
+            <div key={i} className="h-10 rounded-lg bg-border/70" />
           ))}
         </div>
         <div className="flex-1 p-8 flex flex-col gap-4">
-          <div className="h-24 w-full rounded-md bg-border/70" />
-          <div className="h-16 w-full rounded-md bg-border/70" />
-          <div className="h-32 w-full rounded-md bg-border/70" />
+          <div className="h-24 w-full rounded-lg bg-border/70" />
+          <div className="h-16 w-full rounded-lg bg-border/70" />
+          <div className="h-32 w-full rounded-lg bg-border/70" />
         </div>
-        <div className="w-72 border-l border-border bg-white p-4 flex flex-col gap-3">
-          <div className="h-4 w-24 rounded-md bg-border/70" />
-          <div className="h-8 w-full rounded-md bg-border/70" />
-          <div className="h-8 w-full rounded-md bg-border/70" />
-          <div className="h-8 w-full rounded-md bg-border/70" />
+        <div className="w-72 border-l border-border bg-surface p-4 flex flex-col gap-3">
+          <div className="h-4 w-24 rounded-lg bg-border/70" />
+          <div className="h-8 w-full rounded-lg bg-border/70" />
+          <div className="h-8 w-full rounded-lg bg-border/70" />
+          <div className="h-8 w-full rounded-lg bg-border/70" />
         </div>
       </div>
     </div>
@@ -287,11 +287,11 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="fixed inset-y-0 left-[232px] right-0 z-30 flex flex-col bg-section">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4 border-b border-border bg-white px-5 py-3">
+      <div className="flex items-center justify-between gap-4 border-b border-border bg-surface px-5 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/dashboard/pages"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-text-muted hover:bg-section hover:text-text"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-muted hover:bg-section hover:text-text"
           >
             <ArrowLeft size={16} strokeWidth={1.75} />
           </Link>
@@ -356,7 +356,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       {/* Three-pane editor */}
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="flex min-h-0 flex-1">
-          <aside className="w-56 shrink-0 overflow-y-auto border-r border-border bg-white px-3 py-4">
+          <aside className="w-56 shrink-0 overflow-y-auto border-r border-border bg-surface px-3 py-4">
             <BlockPalette onAdd={(type) => applyBlocks([...blocks, createBlock(type)])} />
           </aside>
 
@@ -383,7 +383,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
             </div>
           </main>
 
-          <aside className="w-80 shrink-0 overflow-y-auto border-l border-border bg-white px-4 py-4">
+          <aside className="w-80 shrink-0 overflow-y-auto border-l border-border bg-surface px-4 py-4">
             {selectedBlock ? (
               <PropertiesPanel
                 block={selectedBlock}
@@ -413,7 +413,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       {versionsOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setVersionsOpen(false)} />
-          <div className="fixed left-1/2 top-1/2 z-50 w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-white shadow-[var(--shadow-card-hover)]">
+          <div className="fixed left-1/2 top-1/2 z-50 w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-surface shadow-[var(--shadow-card-hover)]">
             <div className="border-b border-border px-5 py-4">
               <h2 className="text-[17px] font-bold text-text">Version history</h2>
             </div>
@@ -426,7 +426,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                 versions.map((v) => (
                   <div
                     key={v.id}
-                    className="flex items-center justify-between gap-3 rounded-md px-3 py-2.5 hover:bg-section"
+                    className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 hover:bg-section"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-text">

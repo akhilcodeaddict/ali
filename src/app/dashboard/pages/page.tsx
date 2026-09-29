@@ -145,7 +145,7 @@ export default function PagesListPage() {
       {createOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setCreateOpen(false)} />
-          <div className="fixed left-1/2 top-1/2 z-50 w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-white shadow-[var(--shadow-card-hover)]">
+          <div className="fixed left-1/2 top-1/2 z-50 w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-surface shadow-[var(--shadow-card-hover)]">
             <form onSubmit={handleCreate}>
               <div className="border-b border-border px-5 py-4">
                 <h2 className="text-[17px] font-bold text-text">New page</h2>
@@ -172,7 +172,7 @@ export default function PagesListPage() {
                   />
                 </Field>
                 {createError && (
-                  <p className="rounded-md bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">
+                  <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">
                     {createError}
                   </p>
                 )}

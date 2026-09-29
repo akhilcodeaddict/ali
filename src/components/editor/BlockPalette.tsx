@@ -47,7 +47,7 @@ function PaletteItem({ type, onAdd }: { type: string; onAdd: (type: string) => v
       type="button"
       onClick={() => onAdd(type)}
       title={def.description}
-      className={`group flex w-full items-center gap-2.5 rounded-md border border-transparent px-2.5 py-2 text-left text-[13px] font-medium text-text-muted transition-colors hover:border-border hover:bg-white hover:text-text hover:shadow-[var(--shadow-card)] cursor-grab active:cursor-grabbing ${
+      className={`group flex w-full items-center gap-2.5 rounded-lg border border-transparent px-2.5 py-2 text-left text-[13px] font-medium text-text-muted transition-colors hover:border-border hover:bg-surface hover:text-text hover:shadow-[var(--shadow-card)] cursor-grab active:cursor-grabbing ${
         isDragging ? "opacity-40" : ""
       }`}
     >

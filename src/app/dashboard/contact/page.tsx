@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { useToast } from "@/lib/toast-context";
-import { Trash2 } from "lucide-react";
+import { Trash2, Download } from "lucide-react";
 
 export default function ContactPage() {
   const toast = useToast();
@@ -54,6 +54,27 @@ export default function ContactPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  function exportToExcel() {
+    if (!messages) return;
+    const header = ["Name", "Email", "Phone", "Message", "Status", "Received"];
+    const rows = messages.map((m) => [
+      m.name,
+      m.email,
+      m.phone ?? "",
+      m.message,
+      m.isRead ? "Read" : "New",
+      new Date(m.createdAt).toLocaleDateString("en-IN"),
+    ]);
+    const csv = [header, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async function markRead(id: string) {
@@ -109,7 +130,7 @@ export default function ContactPage() {
           ) : (
             <div className="animate-pulse flex flex-col gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-8 rounded-md bg-border/70" />
+                <div key={i} className="h-8 rounded-lg bg-border/70" />
               ))}
             </div>
           )}
@@ -117,7 +138,15 @@ export default function ContactPage() {
       </Card>
 
       <Card>
-        <CardHeader title="Messages" description={messages ? `${messages.length} total` : undefined} />
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border">
+          <div>
+            <h2 className="text-[15px] font-bold text-heading">Messages</h2>
+            {messages && <p className="text-xs text-text-muted mt-0.5">{messages.length} total</p>}
+          </div>
+          <Button variant="secondary" onClick={exportToExcel} disabled={!messages || messages.length === 0}>
+            <Download size={15} /> Export CSV
+          </Button>
+        </div>
         {messages === null && <SkeletonTable rows={4} cols={4} />}
         {messages && messages.length === 0 && <EmptyState label="No messages yet." />}
         {messages && messages.length > 0 && (

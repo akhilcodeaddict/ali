@@ -72,7 +72,7 @@ export function RichTextEditor({
   ];
 
   return (
-    <div className="overflow-hidden rounded-[8px] border border-border bg-white">
+    <div className="overflow-hidden rounded-[8px] border border-border bg-surface">
       <div className="flex items-center gap-0.5 border-b border-border bg-section px-2 py-1.5">
         {buttons.map(({ icon: Icon, label, command }) => (
           <button
@@ -81,7 +81,7 @@ export function RichTextEditor({
             title={label}
             onMouseDown={(e) => e.preventDefault()}
             onClick={command}
-            className="flex h-8 w-8 items-center justify-center rounded-[4px] text-text-muted hover:bg-white hover:text-primary transition-colors cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-[4px] text-text-muted hover:bg-surface hover:text-primary transition-colors cursor-pointer"
           >
             <Icon size={16} strokeWidth={1.75} />
           </button>
@@ -96,7 +96,7 @@ export function RichTextEditor({
           }}
           className={clsx(
             "flex h-8 items-center gap-1.5 rounded-[4px] px-2 text-xs font-semibold transition-colors cursor-pointer",
-            showHtml ? "bg-primary-light text-primary" : "text-text-muted hover:bg-white hover:text-primary"
+            showHtml ? "bg-primary-light text-primary" : "text-text-muted hover:bg-surface hover:text-primary"
           )}
         >
           <Code2 size={14} strokeWidth={1.75} />

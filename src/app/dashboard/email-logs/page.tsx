@@ -113,7 +113,7 @@ export default function EmailLogsPage() {
             { label: "Sent", value: String(sent) },
             { label: "Failed", value: String(failed) },
           ].map((s) => (
-            <div key={s.label} className="rounded-[10px] border border-border bg-white p-4 shadow-[var(--shadow-card)]">
+            <div key={s.label} className="rounded-[10px] border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
               <p className="text-[12px] font-medium text-text-muted">{s.label}</p>
               <p className="mt-1 text-[22px] font-bold text-heading">{s.value}</p>
             </div>
@@ -225,7 +225,7 @@ export default function EmailLogsPage() {
             </div>
 
             {selected.errorMessage && (
-              <div className="rounded-md border border-status-danger-text/20 bg-status-danger-bg px-4 py-3">
+              <div className="rounded-lg border border-status-danger-text/20 bg-status-danger-bg px-4 py-3">
                 <p className="text-xs font-semibold text-status-danger-text">Error</p>
                 <p className="mt-1 whitespace-pre-wrap text-[13px] text-status-danger-text">{selected.errorMessage}</p>
               </div>
@@ -240,10 +240,10 @@ export default function EmailLogsPage() {
                   title="Email body preview"
                   srcDoc={selected.body}
                   sandbox=""
-                  className="h-[420px] w-full rounded-md border border-border bg-white"
+                  className="h-[420px] w-full rounded-lg border border-border bg-surface"
                 />
               ) : (
-                <p className="rounded-md border border-border bg-section px-4 py-6 text-center text-sm text-text-muted">
+                <p className="rounded-lg border border-border bg-section px-4 py-6 text-center text-sm text-text-muted">
                   No body was recorded for this log entry.
                 </p>
               )}

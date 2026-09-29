@@ -137,7 +137,7 @@ export default function GalleryPage() {
       </div>
 
       {categories.length === 0 && items !== null && (
-        <p className="rounded-md bg-status-warning-bg px-3 py-2 text-sm text-status-warning-text">
+        <p className="rounded-lg bg-status-warning-bg px-3 py-2 text-sm text-status-warning-text">
           No gallery categories yet. Add one under Master Data → Gallery before uploading media.
         </p>
       )}
@@ -191,7 +191,7 @@ export default function GalleryPage() {
             </Field>
 
             {form.mediaUrl && (
-              <div className="overflow-hidden rounded-md border border-border" style={{ maxWidth: 240 }}>
+              <div className="overflow-hidden rounded-lg border border-border" style={{ maxWidth: 240 }}>
                 {form.mediaType === "Video" ? (
                   <video src={mediaUrl(form.mediaUrl)} className="h-40 w-full object-cover" controls muted />
                 ) : (
@@ -206,7 +206,7 @@ export default function GalleryPage() {
                 <select
                   value={form.mediaType}
                   onChange={(e) => setForm({ ...form, mediaType: e.target.value as GalleryMediaType })}
-                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
                 >
                   <option value="Image">Image</option>
                   <option value="Video">Video</option>
@@ -217,7 +217,7 @@ export default function GalleryPage() {
                   value={form.categoryId}
                   onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
                   required
-                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:shadow-[var(--shadow-focus)]"
                 >
                   <option value="" disabled>Choose a category…</option>
                   {categories.map((c) => (
@@ -290,7 +290,7 @@ export default function GalleryPage() {
               {filteredItems.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>
-                    <div className="h-12 w-16 overflow-hidden rounded-md border border-border bg-section">
+                    <div className="h-12 w-16 overflow-hidden rounded-lg border border-border bg-section">
                       {item.mediaType === "Video" ? (
                         <video src={mediaUrl(item.mediaUrl)} className="h-full w-full object-cover" muted />
                       ) : (

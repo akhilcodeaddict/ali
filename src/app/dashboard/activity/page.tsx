@@ -67,7 +67,7 @@ export default function ActivityPage() {
           <select
             value={module}
             onChange={(e) => { setModule(e.target.value); setPage(1); }}
-            className="rounded-md border border-border bg-white px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
           >
             <option value="">All modules</option>
             {modules.map((m) => (
@@ -77,7 +77,7 @@ export default function ActivityPage() {
           <select
             value={activity}
             onChange={(e) => { setActivity(e.target.value); setPage(1); }}
-            className="rounded-md border border-border bg-white px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
           >
             <option value="">All activities</option>
             {["Create", "Update", "Delete", "Login", "LoginFailed", "Logout"].map((a) => (

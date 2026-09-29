@@ -39,12 +39,12 @@ export function PageSettingsDrawer({
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/20" onClick={onClose} />
-      <aside className="fixed inset-y-0 right-0 z-50 flex w-[420px] flex-col border-l border-border bg-white shadow-[var(--shadow-card-hover)]">
+      <aside className="fixed inset-y-0 right-0 z-50 flex w-[420px] flex-col border-l border-border bg-surface shadow-[var(--shadow-card-hover)]">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="text-[17px] font-bold text-text">Page settings</h2>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-text-helper hover:bg-section hover:text-text cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-helper hover:bg-section hover:text-text cursor-pointer"
           >
             <X size={16} strokeWidth={1.75} />
           </button>
@@ -140,7 +140,7 @@ export function PageSettingsDrawer({
                   <select
                     value={settings.seo.robotsIndex}
                     onChange={(e) => setSeo({ robotsIndex: e.target.value })}
-                    className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                   >
                     <option value="index">index</option>
                     <option value="noindex">noindex</option>
@@ -150,7 +150,7 @@ export function PageSettingsDrawer({
                   <select
                     value={settings.seo.robotsFollow}
                     onChange={(e) => setSeo({ robotsFollow: e.target.value })}
-                    className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                   >
                     <option value="follow">follow</option>
                     <option value="nofollow">nofollow</option>
