@@ -112,6 +112,7 @@ export interface HeroDto {
   primaryCtaUrl?: string | null;
   secondaryCtaLabel: string;
   secondaryCtaUrl?: string | null;
+  description?: string | null;
 }
 
 export interface HeroSlideDto {
@@ -218,6 +219,7 @@ export interface SiteSettingsDto {
   instagramUrl?: string | null;
   linkedInUrl?: string | null;
   youtubeUrl?: string | null;
+  whatsAppNumber?: string | null;
   googleMapsUrl?: string | null;
   websiteUrl?: string | null;
   metaTitle?: string | null;
@@ -363,6 +365,8 @@ export interface BannerDto {
   caption?: string | null;
   displayOrder: number;
   isActive: boolean;
+  /** Used as the homepage hero background instead of appearing in the scrolling strip. */
+  isBackground: boolean;
 }
 
 export interface UpsertBannerDto {
@@ -370,4 +374,5 @@ export interface UpsertBannerDto {
   caption?: string | null;
   displayOrder: number;
   isActive: boolean;
+  isBackground: boolean;
 }

@@ -11,12 +11,13 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
+import { mediaUrl } from "@/components/media/MediaGrid";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
 import { Drawer } from "@/components/ui/Drawer";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
-const empty: UpsertBannerDto = { imageUrl: "", caption: "", displayOrder: 0, isActive: true };
+const empty: UpsertBannerDto = { imageUrl: "", caption: "", displayOrder: 0, isActive: true, isBackground: false };
 
 export default function BannersPage() {
   const toast = useToast();
@@ -43,6 +44,7 @@ export default function BannersPage() {
       caption: banner.caption ?? "",
       displayOrder: banner.displayOrder,
       isActive: banner.isActive,
+      isBackground: banner.isBackground,
     });
     setFormOpen(true);
   }
@@ -109,6 +111,15 @@ export default function BannersPage() {
             <Input type="number" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })} />
           </Field>
           <Toggle checked={form.isActive} onChange={(v) => setForm({ ...form, isActive: v })} label="Active" />
+          <Toggle
+            checked={form.isBackground}
+            onChange={(v) => setForm({ ...form, isBackground: v })}
+            label="Use as homepage background"
+          />
+          <p className="-mt-2 text-xs text-text-muted">
+            The background banner fills the hero behind the film strips. Only one banner can be the
+            background — turning this on clears it from any other.
+          </p>
           <div>
             <Button type="submit">{editingId ? "Save changes" : "Add banner"}</Button>
           </div>
@@ -133,14 +144,17 @@ export default function BannersPage() {
                     <div className="flex items-center gap-3">
                       {banner.imageUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={banner.imageUrl} alt={banner.caption ?? ""} className="h-8 w-16 object-cover rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <img src={mediaUrl(banner.imageUrl)} alt={banner.caption ?? ""} className="h-8 w-16 object-cover rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                       )}
                       <span className="font-semibold text-text">{banner.caption || "—"}</span>
                     </div>
                   </TableCell>
                   <TableCell muted>{banner.displayOrder}</TableCell>
                   <TableCell>
-                    <Badge tone={banner.isActive ? "success" : "neutral"}>{banner.isActive ? "Active" : "Inactive"}</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge tone={banner.isActive ? "success" : "neutral"}>{banner.isActive ? "Active" : "Inactive"}</Badge>
+                      {banner.isBackground && <Badge tone="warning">Background</Badge>}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">

@@ -5,7 +5,7 @@ import { api, ApiError } from "@/lib/api";
 import { HeroDto, HeroSlideDto } from "@/lib/types";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Input, Field } from "@/components/ui/Input";
+import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
@@ -22,6 +22,7 @@ const EMPTY_HERO: HeroDto = {
   primaryCtaUrl: null,
   secondaryCtaLabel: "",
   secondaryCtaUrl: null,
+  description: null,
 };
 
 export default function HeroPage() {
@@ -61,6 +62,7 @@ export default function HeroPage() {
         primaryCtaUrl: hero.primaryCtaUrl || null,
         secondaryCtaLabel: hero.secondaryCtaLabel,
         secondaryCtaUrl: hero.secondaryCtaUrl || null,
+        description: hero.description || null,
       };
       if (hero.id) await api.put("/api/hero", payload);
       else await api.post("/api/hero", payload);
@@ -120,6 +122,16 @@ export default function HeroPage() {
                 <Field label="Subtitle">
                   <Input value={hero.subtitle} onChange={(e) => setHero({ ...hero, subtitle: e.target.value })} />
                 </Field>
+                <div className="sm:col-span-2">
+                  <Field label="Description" helper="Optional short paragraph shown below the heading on the homepage.">
+                    <Textarea
+                      rows={3}
+                      value={hero.description ?? ""}
+                      onChange={(e) => setHero({ ...hero, description: e.target.value })}
+                      placeholder="e.g. Crafting timeless wedding stories across India..."
+                    />
+                  </Field>
+                </div>
                 <div className="sm:col-span-2">
                   <Field label="Background image">
                     <ImageUrlField

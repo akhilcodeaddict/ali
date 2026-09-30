@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { SeoMetaDto, ProductDto } from "@/lib/types";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
@@ -11,7 +11,7 @@ import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { useToast } from "@/lib/toast-context";
-import { X } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 
 const STATIC_PAGES: { key: string; label: string }[] = [
   { key: "home", label: "Home" },
@@ -34,21 +34,57 @@ export default function SeoPage() {
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const siteNameRef = useRef<string | null>(null);
 
   async function load() {
     try {
-      const [ov, svc] = await Promise.all([
+      const [ov, svc, settings] = await Promise.all([
         api.get<SeoMetaDto[]>("/api/seo"),
         api.get<ProductDto[]>("/api/products/all"),
+        api.get<{ siteName?: string }>("/api/settings").catch(() => null),
       ]);
       setOverrides(ov);
       setServices(svc);
+      if (settings?.siteName) siteNameRef.current = settings.siteName;
     } catch (err) {
       toast.error("Failed to load SEO data", err instanceof ApiError ? err.message : undefined);
     }
   }
 
   useEffect(() => { load(); }, []);
+
+  async function generateWithAI() {
+    if (!editingKey) return;
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/ai/generate-seo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pageLabel: form.label,
+          pageKey: editingKey,
+          siteName: siteNameRef.current ?? undefined,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`);
+      }
+      const data = await res.json() as { metaTitle?: string; metaDescription?: string; metaKeywords?: string };
+      setForm((f) => ({
+        ...f,
+        metaTitle: data.metaTitle ?? f.metaTitle,
+        metaDescription: data.metaDescription ?? f.metaDescription,
+        metaKeywords: data.metaKeywords ?? f.metaKeywords,
+      }));
+      toast.success("AI-generated SEO content ready — review and save");
+    } catch (err) {
+      toast.error("AI generation failed", err instanceof Error ? err.message : undefined);
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   const overrideMap = useMemo(() => {
     const map = new Map<string, SeoMetaDto>();
@@ -147,15 +183,27 @@ export default function SeoPage() {
               <Field label="Social preview image (OG image)">
                 <ImageUrlField value={form.ogImageUrl} onChange={(url) => setForm({ ...form, ogImageUrl: url })} />
               </Field>
-              <div className="flex items-center gap-2">
-                <Button type="submit" disabled={saving}>
-                  {saving ? "Saving…" : "Save"}
+              <div className="flex items-center justify-between gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={generating || saving}
+                  onClick={generateWithAI}
+                  className="flex items-center gap-1.5"
+                >
+                  <Sparkles size={14} strokeWidth={1.75} />
+                  {generating ? "Generating…" : "Generate with AI"}
                 </Button>
-                {overrideMap.has(editingKey) && (
-                  <Button type="button" variant="danger" onClick={() => handleClear(editingKey)}>
-                    Remove override
+                <div className="flex items-center gap-2">
+                  <Button type="submit" disabled={saving || generating}>
+                    {saving ? "Saving…" : "Save"}
                   </Button>
-                )}
+                  {overrideMap.has(editingKey) && (
+                    <Button type="button" variant="danger" onClick={() => handleClear(editingKey)}>
+                      Remove override
+                    </Button>
+                  )}
+                </div>
               </div>
             </form>
           </CardBody>

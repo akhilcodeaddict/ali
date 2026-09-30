@@ -40,34 +40,34 @@
 }
 
 .dark {
-  /* Palette: #030164 · #363199 · #2D7495 · #E8E085 */
-  --color-primary:       #2D7495;
-  --color-primary-dark:  #235e79;
-  --color-primary-light: rgba(45, 116, 149, 0.18);
+  /* Pitch black theme */
+  --color-primary:       #00a99d;
+  --color-primary-dark:  #008f84;
+  --color-primary-light: rgba(0, 169, 157, 0.12);
 
-  --color-heading:       #f0efff;
-  --color-surface:       #363199;   /* cards, sidebar */
-  --color-section:       #030164;   /* page background */
-  --color-border:        #4a47c0;
+  --color-heading:       #f1f5f9;
+  --color-surface:       #111111;   /* cards, sidebar */
+  --color-section:       #000000;   /* page background */
+  --color-border:        #222222;
 
-  --color-text:          #d4d2ff;
-  --color-text-muted:    #a09ddd;
-  --color-text-helper:   #706db8;
+  --color-text:          #cbd5e1;
+  --color-text-muted:    #64748b;
+  --color-text-helper:   #475569;
 
-  --color-status-success-bg:   rgba(21, 128, 61, 0.18);
-  --color-status-success-text: #6ee7b7;
-  --color-status-warning-bg:   rgba(232, 224, 133, 0.15);
-  --color-status-warning-text: #E8E085;
-  --color-status-danger-bg:    rgba(190, 18, 60, 0.18);
+  --color-status-success-bg:   rgba(21, 128, 61, 0.15);
+  --color-status-success-text: #4ade80;
+  --color-status-warning-bg:   rgba(234, 179, 8, 0.12);
+  --color-status-warning-text: #fbbf24;
+  --color-status-danger-bg:    rgba(190, 18, 60, 0.15);
   --color-status-danger-text:  #fb7185;
-  --color-status-neutral-bg:   rgba(255,255,255,0.06);
-  --color-status-neutral-text: #a09ddd;
+  --color-status-neutral-bg:   rgba(255,255,255,0.04);
+  --color-status-neutral-text: #64748b;
 
-  --color-accent-highlight: #E8E085;
+  --color-accent-highlight: #00a99d;
 
-  --shadow-card:       0 1px 4px rgba(3, 1, 100, 0.5);
-  --shadow-card-hover: 0 6px 20px rgba(3, 1, 100, 0.7);
-  --shadow-focus:      0 0 0 3px rgba(45, 116, 149, 0.4);
+  --shadow-card:       0 1px 3px rgba(0,0,0,0.6);
+  --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.8);
+  --shadow-focus:      0 0 0 3px rgba(0,169,157,0.3);
 
   color-scheme: dark;
 }
