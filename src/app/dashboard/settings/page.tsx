@@ -9,13 +9,19 @@ import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
 import { SkeletonCard } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
+import { mediaUrl } from "@/components/media/MediaGrid";
 
 type Form = Omit<SiteSettingsDto, "id">;
+
+/** Must match the public site's own fallback, so the slider and the live
+ *  header agree before a size has ever been saved. */
+const DEFAULT_LOGO_HEIGHT = 76;
 
 const emptyForm: Form = {
   siteName: "",
   tagline: null,
   logoUrl: null,
+  logoHeight: null,
   faviconUrl: null,
   contactEmail: null,
   contactPhone: null,
@@ -121,6 +127,42 @@ export default function SettingsPage() {
               </Field>
               <Field label="Logo">
                 <ImageUrlField value={str(form.logoUrl)} onChange={(url) => set("logoUrl", url)} />
+              </Field>
+              <Field
+                label={`Logo size — ${form.logoHeight ?? DEFAULT_LOGO_HEIGHT}px tall`}
+                helper="Header height on desktop. Mobile scales down automatically."
+              >
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min={32}
+                    max={140}
+                    step={2}
+                    value={form.logoHeight ?? DEFAULT_LOGO_HEIGHT}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, logoHeight: Number(e.target.value) }))
+                    }
+                    className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-border accent-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, logoHeight: null }))}
+                    className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-text-muted transition-colors hover:text-primary"
+                  >
+                    Reset
+                  </button>
+                </div>
+                {form.logoUrl && (
+                  <div className="mt-3 flex items-center justify-center rounded-lg border border-border bg-section p-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={mediaUrl(form.logoUrl)}
+                      alt="Logo preview"
+                      style={{ height: `${form.logoHeight ?? DEFAULT_LOGO_HEIGHT}px` }}
+                      className="w-auto object-contain"
+                    />
+                  </div>
+                )}
               </Field>
               <Field label="Favicon">
                 <ImageUrlField value={str(form.faviconUrl)} onChange={(url) => set("faviconUrl", url)} />

@@ -210,6 +210,8 @@ export interface SiteSettingsDto {
   siteName: string;
   tagline?: string | null;
   logoUrl?: string | null;
+  /** Header logo height in px at desktop width; null uses the theme default. */
+  logoHeight?: number | null;
   faviconUrl?: string | null;
   contactEmail?: string | null;
   contactPhone?: string | null;
