@@ -21,6 +21,7 @@ const emptyForm: Form = {
   siteName: "",
   tagline: null,
   logoUrl: null,
+  logoLightUrl: null,
   logoHeight: null,
   faviconUrl: null,
   contactEmail: null,
@@ -125,45 +126,83 @@ export default function SettingsPage() {
               <Field label="Copyright text">
                 <Input value={str(form.copyrightText)} onChange={(e) => set("copyrightText", e.target.value)} placeholder="© 2025 Company Name" />
               </Field>
-              <Field label="Logo">
+              <Field label="Logo — dark" helper="Used once the header turns solid white on scroll.">
                 <ImageUrlField value={str(form.logoUrl)} onChange={(url) => set("logoUrl", url)} />
               </Field>
               <Field
-                label={`Logo size — ${form.logoHeight ?? DEFAULT_LOGO_HEIGHT}px tall`}
-                helper="Header height on desktop. Mobile scales down automatically."
+                label="Logo — light"
+                helper="Used while the header is transparent over the hero. Falls back to the dark logo if left empty."
               >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="range"
-                    min={32}
-                    max={140}
-                    step={2}
-                    value={form.logoHeight ?? DEFAULT_LOGO_HEIGHT}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, logoHeight: Number(e.target.value) }))
-                    }
-                    className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-border accent-primary"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setForm((f) => ({ ...f, logoHeight: null }))}
-                    className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-text-muted transition-colors hover:text-primary"
-                  >
-                    Reset
-                  </button>
-                </div>
-                {form.logoUrl && (
-                  <div className="mt-3 flex items-center justify-center rounded-lg border border-border bg-section p-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={mediaUrl(form.logoUrl)}
-                      alt="Logo preview"
-                      style={{ height: `${form.logoHeight ?? DEFAULT_LOGO_HEIGHT}px` }}
-                      className="w-auto object-contain"
-                    />
-                  </div>
-                )}
+                <ImageUrlField
+                  value={str(form.logoLightUrl)}
+                  onChange={(url) => set("logoLightUrl", url)}
+                />
               </Field>
+
+              <div className="sm:col-span-2">
+                <Field
+                  label={`Logo size — ${form.logoHeight ?? DEFAULT_LOGO_HEIGHT}px tall`}
+                  helper="Header height on desktop. Mobile scales down automatically."
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min={32}
+                      max={140}
+                      step={2}
+                      value={form.logoHeight ?? DEFAULT_LOGO_HEIGHT}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, logoHeight: Number(e.target.value) }))
+                      }
+                      className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-border accent-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, logoHeight: null }))}
+                      className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-text-muted transition-colors hover:text-primary"
+                    >
+                      Reset
+                    </button>
+                  </div>
+
+                  {/* Each variant on the background it actually appears against,
+                      which is the only way to judge whether it reads. */}
+                  {(form.logoUrl || form.logoLightUrl) && (
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      {[
+                        { label: "On white", url: form.logoUrl, bg: "#ffffff" },
+                        {
+                          label: "Over hero",
+                          url: form.logoLightUrl || form.logoUrl,
+                          bg: "#14100b",
+                        },
+                      ].map((v) => (
+                        <div key={v.label} className="overflow-hidden rounded-lg border border-border">
+                          <div
+                            className="flex items-center justify-center p-3"
+                            style={{ background: v.bg }}
+                          >
+                            {v.url ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img
+                                src={mediaUrl(v.url)}
+                                alt={`${v.label} preview`}
+                                style={{ height: `${form.logoHeight ?? DEFAULT_LOGO_HEIGHT}px` }}
+                                className="w-auto object-contain"
+                              />
+                            ) : (
+                              <span className="py-6 text-[11px] text-text-helper">Not set</span>
+                            )}
+                          </div>
+                          <p className="border-t border-border bg-surface px-2 py-1 text-center text-[10px] uppercase tracking-wide text-text-muted">
+                            {v.label}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Field>
+              </div>
               <Field label="Favicon">
                 <ImageUrlField value={str(form.faviconUrl)} onChange={(url) => set("faviconUrl", url)} />
               </Field>
