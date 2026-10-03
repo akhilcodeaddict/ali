@@ -5,7 +5,7 @@ import { api, ApiError } from "@/lib/api";
 import { AwardDto, UpsertAwardDto } from "@/lib/types";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Input, Field } from "@/components/ui/Input";
+import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
@@ -16,7 +16,7 @@ import { useToast } from "@/lib/toast-context";
 import { Drawer } from "@/components/ui/Drawer";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
-const empty: UpsertAwardDto = { name: "", logoUrl: "", photoUrl: "", displayOrder: 0, isActive: true };
+const empty: UpsertAwardDto = { name: "", description: "", logoUrl: "", photoUrl: "", displayOrder: 0, isActive: true };
 
 export default function AwardsPage() {
   const toast = useToast();
@@ -40,6 +40,7 @@ export default function AwardsPage() {
     setEditingId(award.id);
     setForm({
       name: award.name,
+      description: award.description ?? "",
       logoUrl: award.logoUrl ?? "",
       photoUrl: award.photoUrl ?? "",
       displayOrder: award.displayOrder,
@@ -108,6 +109,14 @@ export default function AwardsPage() {
               <Input type="number" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })} />
             </Field>
           </div>
+          <Field label="Description" helper="Shown next to the award on the website">
+            <Textarea
+              rows={3}
+              value={form.description ?? ""}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="e.g. Recognised for storytelling excellence in South India wedding photography"
+            />
+          </Field>
           <Field label="Logo">
             <ImageUrlField value={form.logoUrl ?? ""} onChange={(url) => setForm({ ...form, logoUrl: url })} />
           </Field>

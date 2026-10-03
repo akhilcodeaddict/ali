@@ -50,6 +50,7 @@ const emptyForm: Form = {
   smtpFromName: null,
   smtpAdminEmail: null,
   smtpUseSsl: false,
+  hasNvidiaApiKey: false,
 };
 
 export default function SettingsPage() {
@@ -371,6 +372,35 @@ export default function SettingsPage() {
               <span className="font-medium text-text">myaccount.google.com/apppasswords</span>.
               Use <span className="font-mono">smtp.gmail.com</span>, port <span className="font-mono">587</span>, SSL off.
             </p>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="AI Assistant"
+            description="NVIDIA API key for the CMS AI assistant. The key is stored server-side and never returned to the browser."
+          />
+          <CardBody>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <Field
+                label="NVIDIA API key"
+                helper={form.hasNvidiaApiKey ? "A key is already saved — type a new one to replace it." : "Get a key at integrate.api.nvidia.com"}
+              >
+                <Input
+                  type="password"
+                  value={(form as any).nvidiaApiKey ?? ""}
+                  onChange={(e) => setForm((f) => ({ ...f, nvidiaApiKey: e.target.value } as any))}
+                  placeholder={form.hasNvidiaApiKey ? "Leave blank to keep existing" : "nvapi-…"}
+                  autoComplete="new-password"
+                />
+              </Field>
+            </div>
+            {form.hasNvidiaApiKey && (
+              <p className="mt-2 flex items-center gap-1.5 text-xs text-status-success-text">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-status-success-text" />
+                AI assistant is active
+              </p>
+            )}
           </CardBody>
         </Card>
 

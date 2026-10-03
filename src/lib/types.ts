@@ -242,6 +242,8 @@ export interface SiteSettingsDto {
   smtpFromName?: string | null;
   smtpAdminEmail?: string | null;
   smtpUseSsl: boolean;
+  // AI — key presence only; actual key is never returned by the API
+  hasNvidiaApiKey: boolean;
 }
 
 export interface SeoMetaDto {
@@ -276,6 +278,7 @@ export interface GalleryItemDto {
   width?: number | null;
   height?: number | null;
   createdAt: string;
+  thumbnailUrl?: string | null;
 }
 
 export interface UpsertGalleryItemDto {
@@ -287,6 +290,7 @@ export interface UpsertGalleryItemDto {
   isActive: boolean;
   width?: number | null;
   height?: number | null;
+  thumbnailUrl?: string | null;
 }
 
 export interface GalleryAlbumImageDto {
@@ -349,6 +353,7 @@ export interface UpsertGalleryAlbumDto {
 export interface AwardDto {
   id: string;
   name: string;
+  description?: string | null;
   logoUrl?: string | null;
   photoUrl?: string | null;
   displayOrder: number;
@@ -357,6 +362,7 @@ export interface AwardDto {
 
 export interface UpsertAwardDto {
   name: string;
+  description?: string | null;
   logoUrl?: string | null;
   photoUrl?: string | null;
   displayOrder: number;

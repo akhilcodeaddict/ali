@@ -58,9 +58,13 @@ export default function SeoPage() {
     if (!editingKey) return;
     setGenerating(true);
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("wbt_token") : null;
       const res = await fetch("/api/ai/generate-seo", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           pageLabel: form.label,
           pageKey: editingKey,
@@ -152,6 +156,12 @@ export default function SeoPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      {generating && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-4 bg-black/50 backdrop-blur-sm">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white" />
+          <p className="text-sm font-medium text-white">Generating SEO content…</p>
+        </div>
+      )}
       <div>
         <h1 className="text-[28px] font-bold text-heading">SEO</h1>
         <p className="mt-1 text-sm text-text-muted">

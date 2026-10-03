@@ -20,6 +20,8 @@ export default function MediaLibraryPage() {
   const [selected, setSelected] = useState<MediaFile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
+  const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -45,20 +47,24 @@ export default function MediaLibraryPage() {
 
   async function handleUpload(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
+    const files = Array.from(fileList);
     setUploading(true);
     setError(null);
+    setUploadProgress({ done: 0, total: files.length });
     try {
-      for (const file of Array.from(fileList)) {
+      for (let i = 0; i < files.length; i++) {
         const form = new FormData();
-        form.append("file", file);
+        form.append("file", files[i]);
         form.append("category", category || "General");
         await api.post("/api/media/upload", form);
+        setUploadProgress({ done: i + 1, total: files.length });
       }
       await load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Upload failed.");
     } finally {
       setUploading(false);
+      setUploadProgress(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
@@ -107,7 +113,9 @@ export default function MediaLibraryPage() {
         </div>
         <Button onClick={() => fileInputRef.current?.click()} disabled={uploading}>
           <Upload size={16} strokeWidth={2} />
-          {uploading ? "Uploading…" : "Upload images"}
+          {uploadProgress
+            ? `Uploading ${uploadProgress.done} / ${uploadProgress.total}…`
+            : uploading ? "Uploading…" : "Upload images"}
         </Button>
         <input
           ref={fileInputRef}
@@ -117,6 +125,33 @@ export default function MediaLibraryPage() {
           className="hidden"
           onChange={(e) => handleUpload(e.target.files)}
         />
+      </div>
+
+      {/* Drag-and-drop zone */}
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => { e.preventDefault(); setDragOver(false); handleUpload(e.dataTransfer.files); }}
+        onClick={() => !uploading && fileInputRef.current?.click()}
+        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed py-8 text-center transition-colors ${
+          dragOver
+            ? "border-primary bg-primary/5 text-primary"
+            : "border-border text-text-muted hover:border-primary/50 hover:bg-section"
+        } ${uploading ? "pointer-events-none opacity-60" : ""}`}
+      >
+        <Upload size={22} strokeWidth={1.5} />
+        <p className="text-[13px] font-medium">
+          {dragOver ? "Drop to upload" : "Drag &amp; drop images here, or click to browse"}
+        </p>
+        <p className="text-[11px] text-text-helper">Supports multiple files at once</p>
+        {uploadProgress && (
+          <div className="mt-2 h-1.5 w-48 overflow-hidden rounded-full bg-border">
+            <div
+              className="h-full rounded-full bg-primary transition-[width]"
+              style={{ width: `${Math.round((uploadProgress.done / uploadProgress.total) * 100)}%` }}
+            />
+          </div>
+        )}
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

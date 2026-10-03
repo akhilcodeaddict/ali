@@ -18,6 +18,8 @@ import { Drawer } from "@/components/ui/Drawer";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
 const empty: UpsertBannerDto = { imageUrl: "", caption: "", displayOrder: 0, isActive: true, isBackground: false };
+// isBackground is retained in the DTO for API compatibility but the toggle is hidden —
+// the hero background feature is no longer used on the photography site.
 
 export default function BannersPage() {
   const toast = useToast();
@@ -111,15 +113,6 @@ export default function BannersPage() {
             <Input type="number" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })} />
           </Field>
           <Toggle checked={form.isActive} onChange={(v) => setForm({ ...form, isActive: v })} label="Active" />
-          <Toggle
-            checked={form.isBackground}
-            onChange={(v) => setForm({ ...form, isBackground: v })}
-            label="Use as homepage background"
-          />
-          <p className="-mt-2 text-xs text-text-muted">
-            The background banner fills the hero behind the film strips. Only one banner can be the
-            background — turning this on clears it from any other.
-          </p>
           <div>
             <Button type="submit">{editingId ? "Save changes" : "Add banner"}</Button>
           </div>
@@ -151,10 +144,7 @@ export default function BannersPage() {
                   </TableCell>
                   <TableCell muted>{banner.displayOrder}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Badge tone={banner.isActive ? "success" : "neutral"}>{banner.isActive ? "Active" : "Inactive"}</Badge>
-                      {banner.isBackground && <Badge tone="warning">Background</Badge>}
-                    </div>
+                    <Badge tone={banner.isActive ? "success" : "neutral"}>{banner.isActive ? "Active" : "Inactive"}</Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">

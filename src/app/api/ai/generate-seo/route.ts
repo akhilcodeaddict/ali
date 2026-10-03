@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? "https://localhost:7287";
 
 export async function POST(req: NextRequest) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) {
-    return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY is not set in the server environment." },
-      { status: 503 },
-    );
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
   const { pageLabel, pageKey, siteName } = (await req.json()) as {
@@ -16,33 +14,45 @@ export async function POST(req: NextRequest) {
     siteName?: string;
   };
 
-  const client = new Anthropic({ apiKey: key });
+  const message = `You are an expert SEO copywriter for a wedding photography studio.
 
-  const prompt = `You are an expert SEO copywriter for a wedding photography studio.
-
-Site: ${siteName || "Blossom Weddings — Wedding Photography & Films"}
+Site: ${siteName || "Wedding Photography Studio"}
 Page: ${pageLabel} (key: "${pageKey}")
 
-Write optimised SEO metadata for this page. Return ONLY a JSON object with these exact keys and no extra text:
+Write optimised SEO metadata for this page. Return ONLY a valid JSON object with these exact keys and no extra text or markdown:
 {
-  "metaTitle": "60 characters max — compelling, keyword-rich page title",
-  "metaDescription": "155 characters max — persuasive summary with a CTA",
-  "metaKeywords": "8–12 comma-separated keywords relevant to this page"
+  "metaTitle": "60 characters max, compelling keyword-rich title",
+  "metaDescription": "155 characters max, persuasive summary with a CTA",
+  "metaKeywords": "8-12 comma-separated keywords relevant to this page"
 }`;
 
-  const message = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 512,
-    messages: [{ role: "user", content: prompt }],
+  const backendRes = await fetch(`${API}/api/ai/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": authHeader,
+    },
+    body: JSON.stringify({ message, history: [] }),
   });
 
-  const text = (message.content[0] as { type: string; text: string }).text.trim();
-
-  // Extract the JSON block in case Claude wraps it in markdown
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) {
-    return NextResponse.json({ error: "Model returned unexpected format." }, { status: 502 });
+  if (!backendRes.ok) {
+    const text = await backendRes.text().catch(() => "");
+    return NextResponse.json(
+      { error: text || `AI service error ${backendRes.status}` },
+      { status: backendRes.status },
+    );
   }
 
-  return NextResponse.json(JSON.parse(match[0]));
+  const { reply } = (await backendRes.json()) as { reply: string };
+
+  const match = reply.match(/\{[\s\S]*\}/);
+  if (!match) {
+    return NextResponse.json({ error: "AI returned unexpected format." }, { status: 502 });
+  }
+
+  try {
+    return NextResponse.json(JSON.parse(match[0]));
+  } catch {
+    return NextResponse.json({ error: "Could not parse AI response." }, { status: 502 });
+  }
 }

@@ -24,6 +24,7 @@ const emptyForm: UpsertGalleryItemDto = {
   isActive: true,
   width: null,
   height: null,
+  thumbnailUrl: null,
 };
 
 export default function GalleryPage() {
@@ -33,6 +34,8 @@ export default function GalleryPage() {
   const [form, setForm] = useState<UpsertGalleryItemDto>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingThumb, setUploadingThumb] = useState(false);
+  const thumbInputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState<ActiveFilterValue>("active");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,6 +66,7 @@ export default function GalleryPage() {
       isActive: item.isActive,
       width: item.width ?? null,
       height: item.height ?? null,
+      thumbnailUrl: item.thumbnailUrl ?? null,
     });
   }
 
@@ -85,6 +89,23 @@ export default function GalleryPage() {
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleThumbnailUpload(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    setUploadingThumb(true);
+    try {
+      const body = new FormData();
+      body.append("file", fileList[0]);
+      const res = await api.post<{ originalUrl: string }>("/api/media/upload", body);
+      setForm((f) => ({ ...f, thumbnailUrl: res.originalUrl }));
+      toast.success("Thumbnail uploaded");
+    } catch (err) {
+      toast.error("Thumbnail upload failed", err instanceof ApiError ? err.message : undefined);
+    } finally {
+      setUploadingThumb(false);
+      if (thumbInputRef.current) thumbInputRef.current.value = "";
     }
   }
 
@@ -201,6 +222,51 @@ export default function GalleryPage() {
               </div>
             )}
 
+            {form.mediaType === "Video" && (
+              <Field label="Video thumbnail (optional)" helper="Shown before/instead of playing the video — recommended for films">
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => thumbInputRef.current?.click()}
+                    disabled={uploadingThumb}
+                  >
+                    <Upload size={13} strokeWidth={1.75} />
+                    {uploadingThumb ? "Uploading…" : "Upload thumbnail"}
+                  </Button>
+                  {form.thumbnailUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, thumbnailUrl: null }))}
+                      className="text-[11px] text-status-danger-text hover:underline"
+                    >
+                      Remove
+                    </button>
+                  )}
+                  <input
+                    ref={thumbInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleThumbnailUpload(e.target.files)}
+                  />
+                </div>
+                <Input
+                  className="mt-2"
+                  value={form.thumbnailUrl ?? ""}
+                  onChange={(e) => setForm({ ...form, thumbnailUrl: e.target.value || null })}
+                  placeholder="https://… (thumbnail image URL)"
+                />
+                {form.thumbnailUrl && (
+                  <div className="mt-2 overflow-hidden rounded-lg border border-border" style={{ maxWidth: 160 }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={mediaUrl(form.thumbnailUrl)} alt="Thumbnail preview" className="h-24 w-full object-cover" />
+                  </div>
+                )}
+              </Field>
+            )}
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Media type">
                 <select
@@ -292,7 +358,14 @@ export default function GalleryPage() {
                   <TableCell>
                     <div className="h-12 w-16 overflow-hidden rounded-lg border border-border bg-section">
                       {item.mediaType === "Video" ? (
-                        <video src={mediaUrl(item.mediaUrl)} className="h-full w-full object-cover" muted />
+                        item.thumbnailUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={mediaUrl(item.thumbnailUrl)} alt={item.title ?? ""} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-black/10">
+                            <Film size={18} className="text-text-muted" />
+                          </div>
+                        )
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={mediaUrl(item.mediaUrl)} alt={item.title ?? ""} className="h-full w-full object-cover" />

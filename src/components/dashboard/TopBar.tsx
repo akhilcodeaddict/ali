@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import {
   Menu,
-  Search,
   Plus,
   Settings,
   ChevronDown,
@@ -14,8 +13,6 @@ import {
   UploadCloud,
   UserPlus,
   LogOut,
-  Bell,
-  MessageSquare,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { NotificationDropdown } from "@/components/dashboard/NotificationDropdown";
@@ -42,6 +39,7 @@ const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   "/dashboard/email-templates":{ title: "Email Notifications", subtitle: "Transactional email templates" },
   "/dashboard/email-logs":   { title: "Email Logs",         subtitle: "Sent email history" },
   "/dashboard/cache":        { title: "Cache Manager",      subtitle: "Clear cached content" },
+  "/dashboard/ai":           { title: "AI Assistant",        subtitle: "Chat with NVIDIA Nemotron via OpenRouter" },
 };
 
 function usePageMeta() {
@@ -64,19 +62,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const { email, name, logout } = useAuth();
   const [createOpen, setCreateOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-  const searchRef = useRef<HTMLInputElement>(null);
   const pageMeta = usePageMeta();
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        searchRef.current?.focus();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
   const initials = (name || email || "?")
     .split(" ")
@@ -103,20 +89,6 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         {pageMeta.subtitle && (
           <p className="text-[11px] text-text-helper leading-tight">{pageMeta.subtitle}</p>
         )}
-      </div>
-
-      {/* Search */}
-      <div className="relative ml-2 w-full max-w-[320px]">
-        <Search size={14} strokeWidth={2} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-helper" />
-        <input
-          ref={searchRef}
-          type="search"
-          placeholder="Search..."
-          className="h-9 w-full rounded-lg border border-border bg-section pl-9 pr-10 text-[13px] text-text placeholder:text-text-helper transition focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-        />
-        <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-text-helper">
-          ⌘K
-        </kbd>
       </div>
 
       {/* Right side */}

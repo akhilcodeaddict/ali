@@ -35,6 +35,7 @@ import {
   Search,
   Award,
   GalleryVerticalEnd,
+  Sparkles,
 } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -117,6 +118,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       title: "System",
       items: [
         { href: "/dashboard/settings", label: "Settings", icon: Settings },
+        { href: "/dashboard/ai", label: "AI Assistant", icon: Sparkles },
         ...(can("settings.view") ? [
           { href: "/dashboard/email-templates", label: "Email Notifications", icon: Mail },
           { href: "/dashboard/email-logs", label: "Email Logs", icon: ClipboardList },
