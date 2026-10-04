@@ -7,9 +7,9 @@ import { SideNav, NavSection } from "@/components/ui/SideNav";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { LoadingBar } from "@/components/ui/LoadingBar";
 import clsx from "clsx";
-import { ToastProvider } from "@/lib/toast-context";
 import Image from "next/image";
 import {
+  HelpCircle,
   FileText,
   Quote,
   Image as ImageIcon,
@@ -77,6 +77,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           ? [{ href: "/dashboard/gallery-albums", label: "Gallery Albums", icon: Images }]
           : []),
         ...(view("awards") ? [{ href: "/dashboard/awards", label: "Awards", icon: Award }] : []),
+        ...(view("faqs") ? [{ href: "/dashboard/faqs", label: "FAQs", icon: HelpCircle }] : []),
         ...(can("seo.view") ? [{ href: "/dashboard/seo", label: "SEO", icon: Search }] : []),
       ],
     },
@@ -142,7 +143,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const roleLabel = roles[0] ?? "Administrator";
 
   return (
-    <ToastProvider>
+    <>
     <LoadingBar />
     <div className="min-h-screen bg-section">
 
@@ -194,6 +195,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
     </div>
-    </ToastProvider>
+    </>
   );
 }

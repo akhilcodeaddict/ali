@@ -11,6 +11,7 @@ import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Sparkles, X } from "lucide-react";
 
 const STATIC_PAGES: { key: string; label: string }[] = [
@@ -28,6 +29,7 @@ const emptyForm = { label: "", metaTitle: "", metaDescription: "", metaKeywords:
 
 export default function SeoPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [tab, setTab] = useState<"static" | "services">("static");
   const [overrides, setOverrides] = useState<SeoMetaDto[] | null>(null);
   const [services, setServices] = useState<ProductDto[] | null>(null);
@@ -143,7 +145,7 @@ export default function SeoPage() {
   }
 
   async function handleClear(key: string) {
-    if (!window.confirm("Remove this override? The page will revert to its default metadata.")) return;
+    if (!await ask("Remove this override? The page will revert to its default metadata.")) return;
     try {
       await api.delete(`/api/seo/${encodeURIComponent(key)}`);
       toast.success("Override removed");

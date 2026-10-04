@@ -350,6 +350,23 @@ export interface UpsertGalleryAlbumDto {
   images: UpsertGalleryAlbumImageDto[];
 }
 
+export interface FaqDto {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string | null;
+  sortOrder: number;
+  isPublished: boolean;
+}
+
+export interface UpsertFaqDto {
+  question: string;
+  answer: string;
+  category?: string | null;
+  sortOrder: number;
+  isPublished: boolean;
+}
+
 export interface AwardDto {
   id: string;
   name: string;

@@ -5,6 +5,7 @@ import { api, ApiError } from "@/lib/api";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Send, Sparkles, Bot, User, AlertCircle } from "lucide-react";
+import { useToast } from "@/lib/toast-context";
 
 interface Message {
   role: "user" | "assistant";
@@ -23,7 +24,8 @@ export default function AiAssistantPage() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [configured, setConfigured] = useState<boolean | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+  const setError = (m: string | null) => { if (m) toast.error(m); };
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -210,11 +212,6 @@ export default function AiAssistantPage() {
 
             {/* Input */}
             <div className="border-t border-border p-4">
-              {error && (
-                <p className="mb-2 rounded-lg bg-status-danger-bg px-3 py-2 text-xs text-status-danger-text">
-                  {error}
-                </p>
-              )}
               <div className="flex gap-2">
                 <textarea
                   ref={textareaRef}

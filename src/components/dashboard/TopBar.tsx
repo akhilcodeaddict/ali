@@ -28,6 +28,7 @@ const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   "/dashboard/gallery":      { title: "Gallery",            subtitle: "Photo and video gallery" },
   "/dashboard/gallery-albums":{ title: "Gallery Albums",    subtitle: "Wedding portfolio albums" },
   "/dashboard/awards":       { title: "Awards",             subtitle: "Recognition and accolades" },
+  "/dashboard/faqs":         { title: "FAQs",               subtitle: "Questions shown on the FAQ page" },
   "/dashboard/seo":          { title: "SEO",                subtitle: "Per-page search engine metadata" },
   "/dashboard/master":       { title: "Categories",         subtitle: "Master data categories" },
   "/dashboard/activity":     { title: "Activity",           subtitle: "Recent admin activity log" },

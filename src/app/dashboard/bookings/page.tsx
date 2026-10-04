@@ -10,6 +10,7 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { Trash2, RefreshCw, MessageSquareText, Mail, Copy, Download } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 
 const STATUSES: BookingStatus[] = ["Pending", "Confirmed", "Completed", "Cancelled"];
 
@@ -21,8 +22,9 @@ function statusTone(s: BookingStatus): "success" | "warning" | "neutral" {
 
 export default function BookingsPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [items, setItems] = useState<BookingDto[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const setError = (m: string | null) => { if (m) toast.error(m); };
   const [reviewMenuFor, setReviewMenuFor] = useState<string | null>(null);
   const [sendingReviewFor, setSendingReviewFor] = useState<string | null>(null);
 
@@ -44,7 +46,7 @@ export default function BookingsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Delete this booking?")) return;
+    if (!await ask("Delete this booking?")) return;
     await api.delete(`/api/bookings/${id}`);
     load();
   }
@@ -119,7 +121,6 @@ export default function BookingsPage() {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Card>
         <CardBody className="p-0">

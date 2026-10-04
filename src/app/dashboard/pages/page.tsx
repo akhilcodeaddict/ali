@@ -12,6 +12,8 @@ import { Input, Field } from "@/components/ui/Input";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { Plus, Pencil, Trash2, Eye } from "lucide-react";
+import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 
 const statusTone: Record<PageStatus, "success" | "warning" | "neutral"> = {
   Draft: "neutral",
@@ -39,13 +41,17 @@ export default function PagesListPage() {
   const [newSlug, setNewSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
+  const toast = useToast();
+  const ask = useConfirm();
+  const setCreateError = (m: string | null) => { if (m) toast.error(m); };
 
   async function load() {
     try {
       setPages(await api.get<PageListItem[]>("/api/pages"));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to load pages.");
+      const msg = err instanceof ApiError ? err.message : "Failed to load pages.";
+      setError(msg);
+      toast.error(msg);
     }
   }
 
@@ -54,7 +60,7 @@ export default function PagesListPage() {
   }, []);
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Archive this page? It will no longer be served.")) return;
+    if (!await ask("Archive this page? It will no longer be served.")) return;
     await api.delete(`/api/pages/${id}`);
     load();
   }
@@ -95,7 +101,7 @@ export default function PagesListPage() {
 
       <Card>
         <CardHeader title="All pages" description={pages ? `${pages.length} total` : undefined} />
-        {error && <CardBody className="text-sm text-red-600">{error}</CardBody>}
+        {error && <CardBody className="text-sm text-text-muted">No pages to show.</CardBody>}
         {!error && pages === null && (
           <SkeletonTable rows={4} cols={4} />
         )}
@@ -171,11 +177,6 @@ export default function PagesListPage() {
                     }}
                   />
                 </Field>
-                {createError && (
-                  <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">
-                    {createError}
-                  </p>
-                )}
               </div>
               <div className="flex justify-end gap-2 border-t border-border px-5 py-4">
                 <Button type="button" variant="secondary" onClick={() => setCreateOpen(false)}>

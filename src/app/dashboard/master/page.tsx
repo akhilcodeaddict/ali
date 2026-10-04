@@ -12,12 +12,15 @@ import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { Pencil, Trash2, X, Plus } from "lucide-react";
+import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 
 const MODULES = [
   { key: "products", label: "Products" },
   { key: "media", label: "Uploads" },
   { key: "gallery", label: "Gallery" },
   { key: "gallery-albums", label: "Gallery Albums" },
+  { key: "events", label: "Event Types" },
 ];
 
 const emptyForm = {
@@ -32,7 +35,9 @@ const emptyForm = {
 export default function MasterCategoriesPage() {
   const [activeTab, setActiveTab] = useState("products");
   const [allCategories, setAllCategories] = useState<CategoryDto[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+  const ask = useConfirm();
+  const setError = (m: string | null) => { if (m) toast.error(m); };
   const [form, setForm] = useState({ ...emptyForm, module: "products" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -85,6 +90,7 @@ export default function MasterCategoriesPage() {
       };
       if (editingId) await api.put(`/api/categories/${editingId}`, payload);
       else await api.post("/api/categories", payload);
+      toast.success(editingId ? "Category updated" : "Category added");
       resetForm();
       load();
     } catch (err) {
@@ -95,9 +101,10 @@ export default function MasterCategoriesPage() {
   }
 
   async function handleDelete(id: string, name: string) {
-    if (!window.confirm(`Deactivate category "${name}"? It will be hidden from active dropdowns but can be reactivated later.`)) return;
+    if (!await ask(`Deactivate category "${name}"? It will be hidden from active dropdowns but can be reactivated later.`)) return;
     try {
       await api.delete(`/api/categories/${id}`);
+      toast.success("Category deactivated");
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to deactivate.");
@@ -112,10 +119,6 @@ export default function MasterCategoriesPage() {
           Manage categories used across modules — products, gallery, and more.
         </p>
       </div>
-
-      {error && (
-        <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>
-      )}
 
       {/* Module tabs */}
       <div className="flex gap-1 border-b border-border">

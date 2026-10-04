@@ -10,6 +10,7 @@ import { Toggle } from "@/components/ui/Toggle";
 import { SkeletonCard } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { mediaUrl } from "@/components/media/MediaGrid";
+import { useToast } from "@/lib/toast-context";
 
 type Form = Omit<SiteSettingsDto, "id">;
 
@@ -57,8 +58,8 @@ export default function SettingsPage() {
   const [form, setForm] = useState<Form>(emptyForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+  const setError = (m: string | null) => { if (m) toast.error(m); };
 
   useEffect(() => {
     api.get<SiteSettingsDto>("/api/settings").then((s) => {
@@ -70,12 +71,10 @@ export default function SettingsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setSuccess(false);
     setSaving(true);
     try {
       await api.put("/api/settings", form);
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      toast.success("Settings saved");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to save settings.");
     } finally {
@@ -106,8 +105,6 @@ export default function SettingsPage() {
         </Button>
       </div>
 
-      {error && <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>}
-      {success && <p className="rounded-lg bg-status-success-bg px-3 py-2 text-sm text-status-success-text">Settings saved successfully.</p>}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 

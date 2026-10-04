@@ -11,6 +11,7 @@ import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Trash2, Plus } from "lucide-react";
 
 const EMPTY_HERO: HeroDto = {
@@ -27,6 +28,7 @@ const EMPTY_HERO: HeroDto = {
 
 export default function HeroPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [hero, setHero] = useState<HeroDto | null>(null);
   const [slides, setSlides] = useState<HeroSlideDto[] | null>(null);
   const [newSlideUrl, setNewSlideUrl] = useState("");
@@ -93,7 +95,7 @@ export default function HeroPage() {
   }
 
   async function deleteSlide(id: string) {
-    if (!window.confirm("Remove this slide?")) return;
+    if (!await ask("Remove this slide?")) return;
     try {
       await api.delete(`/api/hero/slides/${id}`);
       toast.success("Slide removed");

@@ -10,13 +10,15 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Trash2, Download } from "lucide-react";
 
 export default function ContactPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [info, setInfo] = useState<ContactInfoDto | null>(null);
   const [messages, setMessages] = useState<ContactMessageDto[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const setError = (m: string | null) => { if (m) toast.error(m); };
   const [saving, setSaving] = useState(false);
 
   async function load() {
@@ -83,7 +85,7 @@ export default function ContactPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Delete this message?")) return;
+    if (!await ask("Delete this message?")) return;
     await api.delete(`/api/contact/messages/${id}`);
     load();
   }
@@ -95,7 +97,6 @@ export default function ContactPage() {
         <p className="mt-1 text-sm text-text-muted">Office details and inbound enquiries.</p>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Card>
         <CardHeader title="Office details" />

@@ -14,8 +14,10 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Drawer } from "@/components/ui/Drawer";
 import { Plus, Pencil, Trash2, X, ArrowUp, ArrowDown } from "lucide-react";
+import { mediaUrl } from "@/components/media/MediaGrid";
 
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -49,6 +51,7 @@ const emptyForm: UpsertGalleryAlbumDto = {
 
 export default function GalleryAlbumsPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [albums, setAlbums] = useState<GalleryAlbumDto[] | null>(null);
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [form, setForm] = useState<UpsertGalleryAlbumDto>(emptyForm);
@@ -163,7 +166,7 @@ export default function GalleryAlbumsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Deactivate this album? It will be hidden from the public gallery but can be reactivated later.")) return;
+    if (!await ask("Deactivate this album? It will be hidden from the public gallery but can be reactivated later.")) return;
     try {
       await api.delete(`/api/gallery-albums/${id}`);
       toast.success("Album deactivated");
@@ -362,7 +365,7 @@ export default function GalleryAlbumsPage() {
                     <div className="flex items-center gap-3">
                       {album.coverImageUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={album.coverImageUrl} alt={album.title} className="h-10 w-14 rounded object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <img src={mediaUrl(album.coverImageUrl)} alt={album.title} className="h-10 w-14 rounded object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                       )}
                       <span className="font-semibold text-text">{album.title}</span>
                     </div>

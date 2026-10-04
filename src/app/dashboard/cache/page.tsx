@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Trash2, RefreshCw } from "lucide-react";
 
 interface CacheModuleInfo {
@@ -40,6 +41,7 @@ function relativeTime(iso: string): string {
 
 export default function CachePage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [modules, setModules] = useState<CacheModuleInfo[] | null>(null);
   const [clearing, setClearing] = useState<string | null>(null);
   const [toggling, setToggling] = useState<string | null>(null);
@@ -70,7 +72,7 @@ export default function CachePage() {
   }
 
   async function clearAll() {
-    if (!window.confirm("Clear all module caches? Next request for each module will reload from the database.")) return;
+    if (!await ask("Clear all module caches? Next request for each module will reload from the database.")) return;
     setClearing("__all__");
     try {
       await api.delete("/api/cache");
