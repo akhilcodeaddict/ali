@@ -11,12 +11,12 @@ import { Toggle } from "@/components/ui/Toggle";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
-import { ImageUrlField } from "@/components/media/MediaPicker";
+import { ImageUrlField, MediaPicker } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
 import { useConfirm } from "@/lib/confirm-context";
 import { Drawer } from "@/components/ui/Drawer";
-import { Plus, Pencil, Trash2, X, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Pencil, Trash2, X, ArrowUp, ArrowDown, Images } from "lucide-react";
 import { mediaUrl } from "@/components/media/MediaGrid";
 
 function slugify(s: string) {
@@ -59,6 +59,7 @@ export default function GalleryAlbumsPage() {
   const [filter, setFilter] = useState<ActiveFilterValue>("active");
   const [formOpen, setFormOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [multiPickerOpen, setMultiPickerOpen] = useState(false);
 
   async function load() {
     try {
@@ -117,6 +118,14 @@ export default function GalleryAlbumsPage() {
 
   function addImage() {
     setForm({ ...form, images: [...form.images, { ...emptyImage, displayOrder: form.images.length }] });
+  }
+
+  /** One card per picked image, appended after the existing ones. */
+  function addImages(urls: string[]) {
+    // An untouched blank card left by "Add image" would only get in the way.
+    const kept = form.images.filter((img) => img.imageUrl.trim() || img.caption || img.isLocationDivider);
+    const added = urls.map((imageUrl) => ({ ...emptyImage, imageUrl }));
+    setForm({ ...form, images: [...kept, ...added].map((img, idx) => ({ ...img, displayOrder: idx })) });
   }
 
   function removeImage(i: number) {
@@ -274,11 +283,27 @@ export default function GalleryAlbumsPage() {
           <div className="rounded-[8px] border border-border bg-section/60 p-4 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold text-text">Album images</p>
-              <Button type="button" variant="secondary" size="sm" onClick={addImage}>
-                <Plus size={14} strokeWidth={1.75} />
-                Add image
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button type="button" variant="secondary" size="sm" onClick={() => setMultiPickerOpen(true)}>
+                  <Images size={14} strokeWidth={1.75} />
+                  Add multiple
+                </Button>
+                <Button type="button" variant="secondary" size="sm" onClick={addImage}>
+                  <Plus size={14} strokeWidth={1.75} />
+                  Add image
+                </Button>
+              </div>
             </div>
+            {/* Mounted only while open so each visit starts with nothing ticked. */}
+            {multiPickerOpen && (
+              <MediaPicker
+                open
+                multiple
+                onClose={() => setMultiPickerOpen(false)}
+                onPick={() => {}}
+                onPickMany={(items) => addImages(items.map((x) => x.url))}
+              />
+            )}
 
             {form.images.length === 0 && (
               <p className="text-xs text-text-helper">No images added yet.</p>

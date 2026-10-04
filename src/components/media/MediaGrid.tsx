@@ -12,10 +12,13 @@ export function mediaUrl(path?: string | null): string {
 export function MediaGrid({
   files,
   selectedId,
+  selectedIds,
   onSelect,
 }: {
   files: MediaFile[];
   selectedId?: string | null;
+  /** Multi-select: every id here is ringed and numbered in the order it was picked. */
+  selectedIds?: string[];
   onSelect: (file: MediaFile) => void;
 }) {
   if (files.length === 0) {
@@ -28,14 +31,17 @@ export function MediaGrid({
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-      {files.map((file) => (
+      {files.map((file) => {
+        const pickOrder = selectedIds ? selectedIds.indexOf(file.id) : -1;
+        const isSelected = selectedId === file.id || pickOrder >= 0;
+        return (
         <button
           key={file.id}
           type="button"
           onClick={() => onSelect(file)}
           className={clsx(
             "group overflow-hidden rounded-lg border bg-surface text-left transition-all cursor-pointer",
-            selectedId === file.id
+            isSelected
               ? "border-primary shadow-[var(--shadow-focus)]"
               : "border-border hover:border-border hover:shadow-[var(--shadow-card)]"
           )}
@@ -51,6 +57,11 @@ export function MediaGrid({
                 file.isDeleted && "opacity-40 grayscale"
               )}
             />
+            {pickOrder >= 0 && (
+              <span className="absolute right-2 top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-white">
+                {pickOrder + 1}
+              </span>
+            )}
             {file.isDeleted && (
               <span className="absolute left-2 top-2 rounded-full bg-status-danger-bg px-2 py-0.5 text-[10px] font-semibold text-status-danger-text">
                 Deleted
@@ -65,7 +76,8 @@ export function MediaGrid({
             </p>
           </div>
         </button>
-      ))}
+        );
+      })}
     </div>
   );
 }
