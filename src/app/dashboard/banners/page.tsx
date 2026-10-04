@@ -14,6 +14,7 @@ import { ImageUrlField } from "@/components/media/MediaPicker";
 import { mediaUrl } from "@/components/media/MediaGrid";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Drawer } from "@/components/ui/Drawer";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
@@ -23,6 +24,7 @@ const empty: UpsertBannerDto = { imageUrl: "", caption: "", displayOrder: 0, isA
 
 export default function BannersPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [banners, setBanners] = useState<BannerDto[] | null>(null);
   const [form, setForm] = useState<UpsertBannerDto>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -70,7 +72,7 @@ export default function BannersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Deactivate this banner? It will be hidden from the website but can be reactivated later.")) return;
+    if (!await ask("Deactivate this banner? It will be hidden from the website but can be reactivated later.")) return;
     try {
       await api.delete(`/api/banners/${id}`);
       toast.success("Banner deactivated");

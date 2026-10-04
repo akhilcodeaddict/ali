@@ -13,6 +13,7 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Drawer } from "@/components/ui/Drawer";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 
@@ -73,6 +74,7 @@ function ChipListField({
 
 export default function ProductsPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [items, setItems] = useState<ProductDto[] | null>(null);
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [form, setForm] = useState<UpsertProductDto>(emptyForm);
@@ -142,7 +144,7 @@ export default function ProductsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Deactivate this product? It will be hidden from the website but can be reactivated later.")) return;
+    if (!await ask("Deactivate this product? It will be hidden from the website but can be reactivated later.")) return;
     try {
       await api.delete(`/api/products/${id}`);
       toast.success("Product deactivated");

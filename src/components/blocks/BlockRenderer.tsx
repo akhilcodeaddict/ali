@@ -2,6 +2,7 @@
 
 import { ContentBlock } from "@/lib/page-types";
 import { blockRegistry } from "@/lib/blocks/registry";
+import { mediaUrl } from "@/components/media/MediaGrid";
 
 function HeadingBlock({ block }: { block: ContentBlock }) {
   const { level = 2, content = "", align = "left", color } = block.props;
@@ -42,7 +43,7 @@ function ImageBlock({ block }: { block: ContentBlock }) {
   return (
     <figure className={alignClass} style={{ width }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={url} alt={alt} className="w-full rounded-md" />
+      <img src={mediaUrl(url)} alt={alt} className="w-full rounded-md" />
       {caption && (
         <figcaption className="mt-1.5 text-center text-[13px] text-text-helper">{caption}</figcaption>
       )}

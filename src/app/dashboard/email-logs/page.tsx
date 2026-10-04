@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Drawer } from "@/components/ui/Drawer";
 import { Trash2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -37,6 +38,7 @@ function relativeTime(iso: string): string {
 
 export default function EmailLogsPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [logs, setLogs] = useState<EmailLog[] | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -67,7 +69,7 @@ export default function EmailLogsPage() {
   useEffect(() => { load(page); }, [page]);
 
   async function clearAll() {
-    if (!window.confirm("Clear all email logs? This cannot be undone.")) return;
+    if (!await ask("Clear all email logs? This cannot be undone.")) return;
     setClearing(true);
     try {
       await api.delete("/api/email/logs");

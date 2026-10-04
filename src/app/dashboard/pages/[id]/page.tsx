@@ -27,6 +27,9 @@ import { PageSettingsDrawer, PageSettings } from "@/components/editor/PageSettin
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
+import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Settings2,
@@ -56,8 +59,10 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [versionsOpen, setVersionsOpen] = useState(false);
   const [versions, setVersions] = useState<PageVersionItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const router = useRouter();
+  const toast = useToast();
+  const ask = useConfirm();
+  const setNotice = (m: string) => toast.success(m);
   const [saving, setSaving] = useState(false);
   const [lastAutosave, setLastAutosave] = useState<Date | null>(null);
 
@@ -125,7 +130,11 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
           featuredImageAlt: p.featuredImageAlt ?? "",
         });
       })
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load page."));
+      .catch((err) => {
+        // Nothing to edit without the page: say why and go back to the list.
+        toast.error("Could not open page", err instanceof ApiError ? err.message : undefined);
+        router.replace("/dashboard/pages");
+      });
   }, [id]);
 
   // Autosave draft every 30 seconds. State is read through refs so the
@@ -168,17 +177,15 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   }
 
   async function save(): Promise<boolean> {
-    setError(null);
     setSaving(true);
     try {
       const updated = await api.put<PageDetail>(`/api/pages/${id}`, buildPayload());
       setPage(updated);
       dirtyRef.current = false;
       setNotice("Saved.");
-      setTimeout(() => setNotice(null), 2500);
       return true;
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to save.");
       return false;
     } finally {
       setSaving(false);
@@ -196,9 +203,8 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       setNotice(
         result.warnings.length > 0 ? `Published with warnings: ${result.warnings.join(" ")}` : "Published."
       );
-      setTimeout(() => setNotice(null), 6000);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to publish.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to publish.");
     }
   }
 
@@ -207,9 +213,8 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       const updated = await api.patch<PageDetail>(`/api/pages/${id}/unpublish`);
       setPage(updated);
       setNotice("Unpublished — page is now a draft.");
-      setTimeout(() => setNotice(null), 3000);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to unpublish.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to unpublish.");
     }
   }
 
@@ -219,7 +224,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   }
 
   async function restoreVersion(versionId: string) {
-    if (!window.confirm("Restore this version? Current state is snapshotted first.")) return;
+    if (!await ask("Restore this version? Current state is snapshotted first.")) return;
     const restored = await api.post<PageDetail>(`/api/pages/${id}/versions/${versionId}/restore`);
     setPage(restored);
     setTitle(restored.title);
@@ -250,7 +255,6 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
     }
   }
 
-  if (error && !page) return <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{error}</p>;
   if (!page || !settings) return (
     <div className="fixed inset-y-0 left-[232px] right-0 z-30 flex flex-col bg-section animate-pulse">
       <div className="flex items-center gap-4 border-b border-border bg-surface px-5 py-3">
@@ -342,16 +346,6 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
           )}
         </div>
       </div>
-
-      {(error || notice) && (
-        <div
-          className={`px-5 py-2 text-sm ${
-            error ? "bg-status-danger-bg text-status-danger-text" : "bg-status-success-bg text-status-success-text"
-          }`}
-        >
-          {error ?? notice}
-        </div>
-      )}
 
       {/* Three-pane editor */}
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>

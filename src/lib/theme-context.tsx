@@ -11,8 +11,8 @@ export const themeInitScript = `
 (function() {
   try {
     var stored = localStorage.getItem("wbt_theme");
-    var theme = stored === "dark" || stored === "light" ? stored : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    if (theme === "dark") document.documentElement.classList.add("dark");
+    // Light unless the user picked dark with the toggle; the OS setting is ignored.
+    if (stored === "dark") document.documentElement.classList.add("dark");
   } catch (e) {}
 })();
 `;

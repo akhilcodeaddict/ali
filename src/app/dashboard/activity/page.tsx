@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
+import { useToast } from "@/lib/toast-context";
 
 const activityTones: Record<string, "success" | "warning" | "neutral"> = {
   Create: "success",
@@ -26,7 +27,8 @@ export default function ActivityPage() {
   const [activity, setActivity] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [page, setPage] = useState(1);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+  const setError = (m: string | null) => { if (m) toast.error(m); };
 
   const load = useCallback(async () => {
     try {
@@ -60,7 +62,6 @@ export default function ActivityPage() {
         </p>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Card>
         <CardBody className="flex flex-wrap items-center gap-3">

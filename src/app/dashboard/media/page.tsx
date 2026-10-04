@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
 import { Upload, X, Trash2, RotateCcw, Copy } from "lucide-react";
+import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 
 export default function MediaLibraryPage() {
   const [files, setFiles] = useState<MediaFile[] | null>(null);
@@ -18,7 +20,9 @@ export default function MediaLibraryPage() {
   const [search, setSearch] = useState("");
   const [showDeleted, setShowDeleted] = useState(false);
   const [selected, setSelected] = useState<MediaFile | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+  const ask = useConfirm();
+  const setError = (m: string | null) => { if (m) toast.error(m); };
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -60,6 +64,7 @@ export default function MediaLibraryPage() {
         setUploadProgress({ done: i + 1, total: files.length });
       }
       await load();
+      toast.success(files.length > 1 ? `${files.length} files uploaded` : "File uploaded");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Upload failed.");
     } finally {
@@ -71,35 +76,55 @@ export default function MediaLibraryPage() {
 
   async function saveMeta() {
     if (!selected) return;
-    const updated = await api.put<MediaFile>(`/api/media/${selected.id}`, {
-      altText: selected.altText,
-      description: selected.description ?? null,
-      category: selected.category,
-    });
-    setSelected(updated);
-    load();
+    try {
+      const updated = await api.put<MediaFile>(`/api/media/${selected.id}`, {
+        altText: selected.altText,
+        description: selected.description ?? null,
+        category: selected.category,
+      });
+      setSelected(updated);
+      toast.success("Details saved");
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to save details.");
+    }
   }
 
   async function softDelete() {
     if (!selected) return;
-    await api.delete(`/api/media/${selected.id}`);
-    setSelected(null);
-    load();
+    try {
+      await api.delete(`/api/media/${selected.id}`);
+      setSelected(null);
+      toast.success("Moved to trash");
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to delete.");
+    }
   }
 
   async function restore() {
     if (!selected) return;
-    await api.post(`/api/media/${selected.id}/restore`);
-    setSelected({ ...selected, isDeleted: false });
-    load();
+    try {
+      await api.post(`/api/media/${selected.id}/restore`);
+      setSelected({ ...selected, isDeleted: false });
+      toast.success("Image restored");
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to restore.");
+    }
   }
 
   async function purge() {
     if (!selected) return;
-    if (!window.confirm("Permanently delete this image and all its sizes? This cannot be undone.")) return;
-    await api.delete(`/api/media/${selected.id}/permanent`);
-    setSelected(null);
-    load();
+    if (!await ask("Permanently delete this image and all its sizes? This cannot be undone.")) return;
+    try {
+      await api.delete(`/api/media/${selected.id}/permanent`);
+      setSelected(null);
+      toast.success("Image permanently deleted");
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to purge.");
+    }
   }
 
   return (
@@ -141,7 +166,7 @@ export default function MediaLibraryPage() {
       >
         <Upload size={22} strokeWidth={1.5} />
         <p className="text-[13px] font-medium">
-          {dragOver ? "Drop to upload" : "Drag &amp; drop images here, or click to browse"}
+          {dragOver ? "Drop to upload" : "Drag & drop images here, or click to browse"}
         </p>
         <p className="text-[11px] text-text-helper">Supports multiple files at once</p>
         {uploadProgress && (
@@ -153,8 +178,6 @@ export default function MediaLibraryPage() {
           </div>
         )}
       </div>
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Card>
         <CardBody className="flex flex-wrap items-center gap-4">
@@ -199,8 +222,9 @@ export default function MediaLibraryPage() {
         </Card>
 
         {selected && (
-          <Card className="h-fit lg:sticky lg:top-8">
-            <CardBody className="flex flex-col gap-4">
+          <Card className="h-fit overflow-hidden lg:sticky lg:top-8">
+            {/* Capped to the viewport so long details scroll here, not the page. */}
+            <CardBody className="flex flex-col gap-4 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
               <div className="flex items-start justify-between">
                 <h2 className="text-[15px] font-bold text-text">Image details</h2>
                 <button
@@ -249,7 +273,10 @@ export default function MediaLibraryPage() {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => navigator.clipboard.writeText(mediaUrl(selected.originalUrl))}
+                onClick={() => {
+                  navigator.clipboard.writeText(mediaUrl(selected.originalUrl));
+                  toast.success("URL copied");
+                }}
               >
                 <Copy size={13} strokeWidth={1.75} />
                 Copy URL

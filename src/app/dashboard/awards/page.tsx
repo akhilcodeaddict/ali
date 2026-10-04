@@ -13,13 +13,16 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Drawer } from "@/components/ui/Drawer";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { mediaUrl } from "@/components/media/MediaGrid";
 
 const empty: UpsertAwardDto = { name: "", description: "", logoUrl: "", photoUrl: "", displayOrder: 0, isActive: true };
 
 export default function AwardsPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [awards, setAwards] = useState<AwardDto[] | null>(null);
   const [form, setForm] = useState<UpsertAwardDto>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -68,7 +71,7 @@ export default function AwardsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Deactivate this award? It will be hidden from the website but can be reactivated later.")) return;
+    if (!await ask("Deactivate this award? It will be hidden from the website but can be reactivated later.")) return;
     try {
       await api.delete(`/api/awards/${id}`);
       toast.success("Award deactivated");
@@ -148,7 +151,7 @@ export default function AwardsPage() {
                     <div className="flex items-center gap-3">
                       {award.logoUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={award.logoUrl} alt={award.name} className="h-8 w-16 object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <img src={mediaUrl(award.logoUrl)} alt={award.name} className="h-8 w-16 object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                       )}
                       <span className="font-semibold text-text">{award.name}</span>
                     </div>

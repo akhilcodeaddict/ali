@@ -11,6 +11,8 @@ import { Toggle } from "@/components/ui/Toggle";
 import { Table, TableHead, TableRow, TableCell } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { Plus, Pencil, Trash2, X, Lock, ChevronLeft } from "lucide-react";
+import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 
 interface RoleForm {
   name: string;
@@ -28,11 +30,13 @@ function permFor(perms: string[], action: string): string | undefined {
 export default function RolesPage() {
   const [roles, setRoles] = useState<RoleItem[] | null>(null);
   const [catalog, setCatalog] = useState<Record<string, string[]>>({});
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+  const ask = useConfirm();
+  const setError = (m: string | null) => { if (m) toast.error(m); };
   const [view, setView] = useState<"list" | "form">("list");
   const [editing, setEditing] = useState<RoleItem | null>(null);
   const [form, setForm] = useState<RoleForm>({ name: "", description: "", permissions: [], isActive: true });
-  const [formError, setFormError] = useState<string | null>(null);
+  const setFormError = (m: string | null) => { if (m) toast.error(m); };
   const [saving, setSaving] = useState(false);
 
   async function load() {
@@ -74,6 +78,7 @@ export default function RolesPage() {
       const payload = { name: form.name, description: form.description || null, permissions: form.permissions, isActive: form.isActive };
       if (editing) await api.put(`/api/roles/${editing.id}`, payload);
       else await api.post("/api/roles", payload);
+      toast.success(editing ? "Role updated" : "Role added");
       backToList();
       load();
     } catch (err) {
@@ -84,12 +89,13 @@ export default function RolesPage() {
   }
 
   async function handleDelete(role: RoleItem) {
-    if (!window.confirm(`Delete role "${role.name}"?`)) return;
+    if (!await ask(`Delete role "${role.name}"?`)) return;
     try {
       await api.delete(`/api/roles/${role.id}`);
+      toast.success("Role deleted");
       load();
     } catch (err) {
-      window.alert(err instanceof ApiError ? err.message : "Failed to delete role.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to delete role.");
     }
   }
 
@@ -158,10 +164,6 @@ export default function RolesPage() {
             {editing ? `Edit: ${editing.name}` : "New role"}
           </h1>
         </div>
-
-        {formError && (
-          <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{formError}</p>
-        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <Card>
@@ -309,7 +311,6 @@ export default function RolesPage() {
         </Button>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Card>
         <CardHeader title="All roles" description={roles ? `${roles.length} total` : undefined} />

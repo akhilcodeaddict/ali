@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { mediaUrl } from "@/components/media/MediaGrid";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { Pencil, Trash2, X, Plus, Upload, Film, Image as ImageIcon } from "lucide-react";
@@ -29,6 +30,7 @@ const emptyForm: UpsertGalleryItemDto = {
 
 export default function GalleryPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [items, setItems] = useState<GalleryItemDto[] | null>(null);
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [form, setForm] = useState<UpsertGalleryItemDto>(emptyForm);
@@ -135,7 +137,7 @@ export default function GalleryPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Deactivate this gallery item? It will be hidden from the public gallery but can be reactivated later.")) return;
+    if (!await ask("Deactivate this gallery item? It will be hidden from the public gallery but can be reactivated later.")) return;
     try {
       await api.delete(`/api/gallery/${id}`);
       toast.success("Gallery item deactivated");

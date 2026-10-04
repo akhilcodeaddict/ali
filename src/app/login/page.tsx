@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import { useToast } from "@/lib/toast-context";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -22,13 +23,12 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setSubmitting(true);
     try {
       await login(username, password);
       router.replace("/dashboard");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Invalid credentials.");
+      toast.error("Sign in failed", err instanceof ApiError ? err.message : "Invalid credentials.");
     } finally {
       setSubmitting(false);
     }
@@ -66,13 +66,6 @@ export default function LoginPage() {
 
         {/* Form card — solid white */}
         <div className="rounded-xl bg-white p-8 shadow-[0_8px_40px_rgba(0,0,0,0.18)]">
-
-          {error && (
-            <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-status-danger-text/20 bg-status-danger-bg px-4 py-3 text-[13px] text-status-danger-text">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>

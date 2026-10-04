@@ -13,8 +13,10 @@ import { SkeletonTable } from "@/components/ui/Skeleton";
 import { ImageUrlField } from "@/components/media/MediaPicker";
 import { ActiveFilter, ActiveFilterValue, filterByActive } from "@/components/ui/ActiveFilter";
 import { useToast } from "@/lib/toast-context";
+import { useConfirm } from "@/lib/confirm-context";
 import { Drawer } from "@/components/ui/Drawer";
 import { Plus, Pencil, Trash2, X, Check, Mail, UploadCloud, Copy, CopyCheck } from "lucide-react";
+import { mediaUrl } from "@/components/media/MediaGrid";
 
 const empty: UpsertTestimonialDto = {
   name: "",
@@ -66,7 +68,7 @@ function ExtraImagesField({ value, onChange }: { value: string[]; onChange: (url
           {value.map((url) => (
             <div key={url} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-border">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" className="h-full w-full object-cover" />
+              <img src={mediaUrl(url)} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
                 onClick={() => remove(url)}
@@ -101,6 +103,7 @@ type Filter = "all" | "pending" | "approved" | "rejected";
 
 export default function TestimonialsPage() {
   const toast = useToast();
+  const ask = useConfirm();
   const [items, setItems] = useState<TestimonialDto[] | null>(null);
   const [services, setServices] = useState<ProductDto[]>([]);
   const [form, setForm] = useState<UpsertTestimonialDto>(empty);
@@ -181,7 +184,7 @@ export default function TestimonialsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Deactivate this testimonial? It will be hidden from the homepage but can be reactivated later.")) return;
+    if (!await ask("Deactivate this testimonial? It will be hidden from the homepage but can be reactivated later.")) return;
     try {
       await api.delete(`/api/testimonials/${id}`);
       toast.success("Testimonial deactivated");

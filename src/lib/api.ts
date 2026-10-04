@@ -15,6 +15,18 @@ function getToken(): string | null {
   return localStorage.getItem("wbt_token");
 }
 
+/** True when the JWT has expired or will within the next 30 seconds. */
+function isExpiring(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const { exp } = JSON.parse(atob(payload)) as { exp?: number };
+    return typeof exp === "number" && exp * 1000 - Date.now() < 30_000;
+  } catch {
+    return false;
+  }
+}
+
 interface RefreshResponse {
   accessToken: string;
   accessTokenExpiresAt: string;
@@ -74,6 +86,9 @@ async function request<T>(
   }
 
   if (auth) {
+    // Renew a token that is about to lapse before sending, so the request
+    // does not fail with a 401 first and then have to be repeated.
+    if (!isRetry && !path.startsWith("/api/auth/") && isExpiring(getToken())) await tryRefresh();
     const token = getToken();
     if (token) finalHeaders["Authorization"] = `Bearer ${token}`;
   }

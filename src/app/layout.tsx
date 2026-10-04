@@ -3,6 +3,8 @@ import { Inter, Orbitron, Rajdhani, Arimo } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { ThemeProvider, themeInitScript } from "@/lib/theme-context";
+import { ToastProvider } from "@/lib/toast-context";
+import { ConfirmProvider } from "@/lib/confirm-context";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,11 +32,8 @@ const arimo = Arimo({
 export const metadata: Metadata = {
   title: "ALI CMS Studio",
   description: "Adaptive Layout Interface — Content management dashboard for Blossm Weddings",
-  icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
-  },
+  // Admin tool: keep it out of search results.
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({
@@ -49,7 +48,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <ToastProvider>
+            <ConfirmProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </ConfirmProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

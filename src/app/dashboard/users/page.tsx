@@ -10,6 +10,7 @@ import { Input, Field } from "@/components/ui/Input";
 import { Table, TableHead, TableRow, TableCell, EmptyState } from "@/components/ui/Table";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { Plus, Pencil, KeyRound, X } from "lucide-react";
+import { useToast } from "@/lib/toast-context";
 
 const statusTone: Record<UserStatus, "success" | "warning" | "neutral"> = {
   Active: "success",
@@ -42,11 +43,12 @@ const emptyForm: UserForm = {
 export default function UsersPage() {
   const [users, setUsers] = useState<AdminUserItem[] | null>(null);
   const [roles, setRoles] = useState<RoleItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+  const setError = (m: string | null) => { if (m) toast.error(m); };
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<UserForm>(emptyForm);
-  const [formError, setFormError] = useState<string | null>(null);
+  const setFormError = (m: string | null) => { if (m) toast.error(m); };
   const [saving, setSaving] = useState(false);
 
   async function load() {
@@ -115,6 +117,7 @@ export default function UsersPage() {
           roleIds: form.roleIds,
         });
       }
+      toast.success(editingId ? "User updated" : "User added");
       setFormOpen(false);
       load();
     } catch (err) {
@@ -129,9 +132,9 @@ export default function UsersPage() {
     if (!newPassword) return;
     try {
       await api.post(`/api/users/${user.id}/reset-password`, { newPassword });
-      window.alert("Password updated.");
+      toast.success("Password updated");
     } catch (err) {
-      window.alert(err instanceof ApiError ? err.message : "Failed to reset password.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to reset password.");
     }
   }
 
@@ -157,7 +160,6 @@ export default function UsersPage() {
         </Button>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Card>
         <CardHeader title="All users" description={users ? `${users.length} total` : undefined} />
@@ -293,10 +295,6 @@ export default function UsersPage() {
                     ))}
                   </div>
                 </Field>
-
-                {formError && (
-                  <p className="rounded-lg bg-status-danger-bg px-3 py-2 text-sm text-status-danger-text">{formError}</p>
-                )}
               </div>
 
               <div className="flex justify-end gap-2 border-t border-border px-5 py-4">
