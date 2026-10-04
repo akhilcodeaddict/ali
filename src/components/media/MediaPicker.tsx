@@ -9,23 +9,42 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Upload, X } from "lucide-react";
 
+/** Widest rendition the backend keeps ("large"). */
+const LARGE_WIDTH = 2560;
+
+/** The link stored for a picked image. The public site resizes and compresses
+ *  it per screen, so it is handed the best source there is: the untouched
+ *  original when it is no wider than "large", otherwise the "large" rendition
+ *  (a full camera file is too heavy to resize from on every request). */
+function pickUrl(file: MediaFile): string {
+  if (file.width > 0 && file.width <= LARGE_WIDTH) return file.originalUrl;
+  return file.largeUrl ?? file.originalUrl;
+}
+
 export function MediaPicker({
   open,
   onClose,
   onPick,
   currentUrl,
+  multiple = false,
+  onPickMany,
 }: {
   open: boolean;
   onClose: () => void;
-  /** Receives the picked file's backend-relative path (medium rendition if available)
+  /** Receives the picked file's backend-relative path (see pickUrl)
    *  and the file itself. Kept relative — not resolved against this admin session's
    *  API host — so the value stays portable no matter where it's later rendered
    *  (the salon site resolves it against its own API host at render time). */
   onPick: (url: string, file: MediaFile) => void;
   /** The URL currently set on the parent field — used to pre-highlight the matching image. */
   currentUrl?: string;
+  /** Lets several images be ticked and confirmed together with OK. */
+  multiple?: boolean;
+  /** Multi-select result, in the order the images were picked. */
+  onPickMany?: (picked: { url: string; file: MediaFile }[]) => void;
 }) {
   const [files, setFiles] = useState<MediaFile[] | null>(null);
+  const [picked, setPicked] = useState<MediaFile[]>([]);
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -43,7 +62,7 @@ export function MediaPicker({
     const normalizedCurrent = norm(currentUrl);
     return (
       files.find((f) => {
-        const candidates = [f.mediumUrl, f.originalUrl, f.thumbnailUrl].filter(Boolean) as string[];
+        const candidates = [f.largeUrl, f.mediumUrl, f.originalUrl, f.thumbnailUrl].filter(Boolean) as string[];
         return candidates.some((c) => norm(mediaUrl(c)) === normalizedCurrent || norm(c) === normalizedCurrent);
       })?.id ?? null
     );
@@ -55,16 +74,35 @@ export function MediaPicker({
     if (!fileList || fileList.length === 0) return;
     setUploading(true);
     try {
-      const form = new FormData();
-      form.append("file", fileList[0]);
-      form.append("category", "General");
-      const uploaded = await api.post<MediaFile>("/api/media/upload", form);
-      onPick(uploaded.mediumUrl ?? uploaded.originalUrl, uploaded);
+      const uploadedFiles: MediaFile[] = [];
+      for (const file of Array.from(fileList).slice(0, multiple ? undefined : 1)) {
+        const form = new FormData();
+        form.append("file", file);
+        form.append("category", "General");
+        uploadedFiles.push(await api.post<MediaFile>("/api/media/upload", form));
+      }
+      if (multiple) {
+        // New uploads join the library view and the selection; OK still confirms.
+        setFiles((prev) => [...uploadedFiles, ...(prev ?? [])]);
+        setPicked((prev) => [...prev, ...uploadedFiles]);
+        return;
+      }
+      const uploaded = uploadedFiles[0];
+      onPick(pickUrl(uploaded), uploaded);
       onClose();
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  }
+
+  function togglePicked(file: MediaFile) {
+    setPicked((prev) => (prev.some((f) => f.id === file.id) ? prev.filter((f) => f.id !== file.id) : [...prev, file]));
+  }
+
+  function confirmPicked() {
+    onPickMany?.(picked.map((file) => ({ url: pickUrl(file), file })));
+    onClose();
   }
 
   // Portalled to <body>: the picker is opened from inside a Drawer, whose slide-in
@@ -75,7 +113,7 @@ export function MediaPicker({
       <div className="fixed inset-0 z-[100] bg-black/25" onClick={onClose} />
       <div className="fixed left-1/2 top-1/2 z-[110] flex max-h-[80vh] w-[760px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg border border-border bg-surface shadow-[var(--shadow-card-hover)]">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 className="text-[17px] font-bold text-text">Choose image</h2>
+          <h2 className="text-[17px] font-bold text-text">{multiple ? "Choose images" : "Choose image"}</h2>
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
@@ -97,6 +135,7 @@ export function MediaPicker({
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            multiple={multiple}
             className="hidden"
             onChange={(e) => handleUpload(e.target.files)}
           />
@@ -113,17 +152,35 @@ export function MediaPicker({
         <div className="flex-1 overflow-y-auto p-5">
           {files === null ? (
             <p className="text-sm text-text-muted">Loading…</p>
+          ) : multiple ? (
+            <MediaGrid files={files} selectedIds={picked.map((f) => f.id)} onSelect={togglePicked} />
           ) : (
             <MediaGrid
               files={files}
               selectedId={selectedId}
               onSelect={(file) => {
-                onPick(file.mediumUrl ?? file.originalUrl, file);
+                onPick(pickUrl(file), file);
                 onClose();
               }}
             />
           )}
         </div>
+
+        {multiple && (
+          <div className="flex items-center justify-between border-t border-border px-5 py-3">
+            <p className="text-sm text-text-muted">
+              {picked.length === 0 ? "Click images to select them." : `${picked.length} selected`}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button type="button" variant="secondary" size="sm" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="button" size="sm" onClick={confirmPicked} disabled={picked.length === 0}>
+                OK
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </>,
     document.body,
